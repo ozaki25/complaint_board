@@ -1,28 +1,37 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
-var TestView = require('./views/TestView');
+var HeaderView = require('./views/HeaderView');
+var MainView = require('./views/MainView');
 
 var App = new Marionette.Application({
     regions: {
+        header: '#header',
         main: '#main'
     },
     onStart: function() {
-        this.getRegion('main').show(new TestView());
+        this.header.show(new HeaderView());
+        this.getRegion('main').show(new MainView());
     }
 });
 
 App.start();
 
-},{"./views/TestView":2,"backbone.marionette":4}],2:[function(require,module,exports){
-var Backbone = require('backbone');
+},{"./views/HeaderView":2,"./views/MainView":3,"backbone.marionette":5}],2:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
-    template: '#test_view'
+    template: '#header_view'
+});
+
+},{"backbone.marionette":5}],3:[function(require,module,exports){
+var Marionette = require('backbone.marionette');
+
+module.exports = Marionette.ItemView.extend({
+    template: '#main_view'
 });
 
 
-},{"backbone":"backbone","backbone.marionette":4}],3:[function(require,module,exports){
+},{"backbone.marionette":5}],4:[function(require,module,exports){
 // Backbone.BabySitter
 // -------------------
 // v0.1.11
@@ -214,7 +223,7 @@ module.exports = Marionette.ItemView.extend({
 
 }));
 
-},{"backbone":"backbone","underscore":"underscore"}],4:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],5:[function(require,module,exports){
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
 // v2.4.5
@@ -3725,7 +3734,7 @@ module.exports = Marionette.ItemView.extend({
   return Marionette;
 }));
 
-},{"backbone":"backbone","backbone.babysitter":3,"backbone.wreqr":5,"underscore":"underscore"}],5:[function(require,module,exports){
+},{"backbone":"backbone","backbone.babysitter":4,"backbone.wreqr":6,"underscore":"underscore"}],6:[function(require,module,exports){
 // Backbone.Wreqr (Backbone.Marionette)
 // ----------------------------------
 // v1.3.6
@@ -4162,7 +4171,7 @@ module.exports = Marionette.ItemView.extend({
 
 }));
 
-},{"backbone":"backbone","underscore":"underscore"}],6:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],7:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.6
  * http://getbootstrap.com/javascript/#affix
@@ -4326,7 +4335,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.6
  * http://getbootstrap.com/javascript/#alerts
@@ -4422,7 +4431,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.6
  * http://getbootstrap.com/javascript/#buttons
@@ -4544,7 +4553,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.6
  * http://getbootstrap.com/javascript/#carousel
@@ -4783,7 +4792,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.6
  * http://getbootstrap.com/javascript/#collapse
@@ -4996,7 +5005,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.6
  * http://getbootstrap.com/javascript/#dropdowns
@@ -5163,7 +5172,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.6
  * http://getbootstrap.com/javascript/#modals
@@ -5502,7 +5511,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.6
  * http://getbootstrap.com/javascript/#popovers
@@ -5612,7 +5621,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.6
  * http://getbootstrap.com/javascript/#scrollspy
@@ -5786,7 +5795,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.6
  * http://getbootstrap.com/javascript/#tabs
@@ -5943,7 +5952,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.6
  * http://getbootstrap.com/javascript/#tooltip
@@ -6459,7 +6468,7 @@ module.exports = Marionette.ItemView.extend({
 
 }(jQuery);
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions
@@ -9069,7 +9078,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":6,"../../js/alert.js":7,"../../js/button.js":8,"../../js/carousel.js":9,"../../js/collapse.js":10,"../../js/dropdown.js":11,"../../js/modal.js":12,"../../js/popover.js":13,"../../js/scrollspy.js":14,"../../js/tab.js":15,"../../js/tooltip.js":16,"../../js/transition.js":17}],"jquery":[function(require,module,exports){
+},{"../../js/affix.js":7,"../../js/alert.js":8,"../../js/button.js":9,"../../js/carousel.js":10,"../../js/collapse.js":11,"../../js/dropdown.js":12,"../../js/modal.js":13,"../../js/popover.js":14,"../../js/scrollspy.js":15,"../../js/tab.js":16,"../../js/tooltip.js":17,"../../js/transition.js":18}],"jquery":[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.3
  * http://jquery.com/

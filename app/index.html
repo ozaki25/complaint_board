@@ -2,16 +2,31 @@
 
 <html>
   <head>
-    <title>backbone_moarionette_template</title>
+    <title>ComplaintBoard</title>
     <link rel="stylesheet"  media="screen" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet"  media="screen" href="./styles/main.css">
     <meta charset="UTF-8">
   </head>
   <body>
+    <div id="header"></div>
     <div id="main"></div>
 
-    <script id="test_view" type="text/template">
-      <h1>Backbone Moarionette Template</h1>
+    <script id="header_view" type="text/template">
+      <nav class="navbar navbar-default">
+        <div class="container">
+          <div class="navbar-header">
+            <a href="#" class="navbar-brand">ComplaintBoard</a>
+          </div>
+        </div>
+      </nav>
+    </script>
+
+    <script id="main_view" type="text/template">
+      <div class="row">
+        <div id="new_comment" class="col-md-12" style="background-color: red;">フォーム</div>
+        <div id="categories" class="col-md-3" style="background-color: blue;">カテゴリ</div>
+        <div id="comments" class="col-md-9" style="background-color: green;">コメント</div>
+      </div>
     </script>
 
     <script src="scripts/app.js"></script>
