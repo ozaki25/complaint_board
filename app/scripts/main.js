@@ -1,15 +1,19 @@
 var Marionette = require('backbone.marionette');
+var Comments = require('./collections/Comments');
 var HeaderView = require('./views/HeaderView');
 var MainView = require('./views/MainView');
 
+var comments = new Comments();
 var App = new Marionette.Application({
     regions: {
         header: '#header',
         main: '#main'
     },
     onStart: function() {
-        this.header.show(new HeaderView());
-        this.getRegion('main').show(new MainView());
+        comments.fetch().done(function() {
+            this.header.show(new HeaderView());
+            this.getRegion('main').show(new MainView({collection: comments}));
+        }.bind(this));
     }
 });
 
