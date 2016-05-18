@@ -4,6 +4,7 @@ var CategoriesView = require('./CategoriesView');
 var CommentsView = require('./CommentsView');
 
 module.exports = Marionette.LayoutView.extend({
+    className: 'container',
     template: '#main_view',
     regions: {
         form: '#new_comment',
@@ -11,9 +12,9 @@ module.exports = Marionette.LayoutView.extend({
         comments: '#comments'
     },
     onRender: function() {
-        this.form.show(new FormView());
+        this.form.show(new FormView({collection: this.collection}));
         this.categories.show(new CategoriesView());
-        this.comments.show(new CommentsView());
+        this.comments.show(new CommentsView({collection: this.collection}));
     }
 });
 
