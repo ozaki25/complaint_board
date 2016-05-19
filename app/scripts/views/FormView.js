@@ -27,10 +27,7 @@ module.exports = Marionette.ItemView.extend({
     onClickCreate: function() {
         var category = this.ui.selectCategory.children(':checked').val();
         var comment = this.ui.inputComment.val().trim();
-        this.collection.create({
-            category: category,
-            content: comment
-        });
+        this.collection.create({category: category, content: comment});
         this.ui.inputs.val('');
     }
 });

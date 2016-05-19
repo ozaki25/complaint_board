@@ -13,6 +13,9 @@ module.exports = Marionette.LayoutView.extend({
         categories: '#categories',
         comments: '#comments'
     },
+    collectionEvents: {
+        'add': 'refreshComments'
+    },
     childEvents: {
         'click:category': 'showComments'
     },
@@ -21,11 +24,20 @@ module.exports = Marionette.LayoutView.extend({
         categories.fetch().done(function() {
             if(!categories.length) categories.addDefault();
         });
-        var commentsWithCategory = new Comments(this.collection.withCategory(categories.models[0].get('name')));
+        var firstCategory = categories.models[0];
+        var commentsWithCategory = new Comments(this.collection.withCategory(firstCategory.get('name')));
 
         this.form.show(new FormView({collection: this.collection, categories: categories}));
         this.categories.show(new CategoriesView({collection: categories}));
-        this.comments.show(new CommentsView({collection: commentsWithCategory, model: categories.models[0]}));
+        this.comments.show(new CommentsView({collection: commentsWithCategory, model: firstCategory}));
+    },
+    refreshComments: function(model) {
+        var createdCategory = model.get('category');
+        var currentViewCategory = this.comments.currentView.model.get('name');
+        if(createdCategory === currentViewCategory) {
+            var commentsWithCategory = new Comments(this.collection.withCategory(currentViewCategory));
+            this.comments.show(new CommentsView({collection: commentsWithCategory, model: this.comments.currentView.model}));
+        }
     },
     showComments: function(view) {
         var category = view.model;
