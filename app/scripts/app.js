@@ -96,7 +96,7 @@ module.exports = Marionette.ItemView.extend({
 var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
-    tagName: 'p',
+    tagName: 'ul',
     template: '#comment_view'
 });
 
@@ -114,30 +114,44 @@ module.exports = Marionette.CompositeView.extend({
 
 
 },{"./CommentView":8,"backbone.marionette":15}],10:[function(require,module,exports){
+var _ = require('underscore');
 var Marionette = require('backbone.marionette');
+var Categories = require('../collections/Categories');
 
 module.exports = Marionette.ItemView.extend({
     template: '#form_view',
     ui: {
-        inputCategory:'input.category',
+        selectCategory:'select.category',
         inputComment:'input.comment',
         inputs:'input'
     },
     events: {
         'click .create-comment-btn': 'onClickCreate'
     },
+    initialize: function(options) {
+        this.categories = options.categories;
+    },
+    templateHelpers: function () {
+        return {
+            categoryList: function() {
+                return _(this.categories.models).map(function(category) {
+                    return '<option value="' + category.get('name') + '">' + category.get('name') + '</option>';
+                }).join('');
+            }.bind(this)
+        }
+    },
     onClickCreate: function() {
-        var inputCategory = this.ui.inputCategory.val().trim();
-        var inputComment = this.ui.inputComment.val().trim();
+        var category = this.ui.selectCategory.children(':checked').val();
+        var comment = this.ui.inputComment.val().trim();
         this.collection.create({
-            category: inputCategory,
-            content: inputComment
+            category: category,
+            content: comment
         });
         this.ui.inputs.val('');
     }
 });
 
-},{"backbone.marionette":15}],11:[function(require,module,exports){
+},{"../collections/Categories":1,"backbone.marionette":15,"underscore":"underscore"}],11:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
@@ -168,14 +182,16 @@ module.exports = Marionette.LayoutView.extend({
         categories.fetch().done(function() {
             if(!categories.length) categories.addDefault();
         });
-        this.form.show(new FormView({collection: this.collection}));
+        var commentsWithCategory = new Comments(this.collection.withCategory(categories.models[0].get('name')));
+
+        this.form.show(new FormView({collection: this.collection, categories: categories}));
         this.categories.show(new CategoriesView({collection: categories}));
-        this.comments.show(new CommentsView({collection: this.collection}));
+        this.comments.show(new CommentsView({collection: commentsWithCategory, model: categories.models[0]}));
     },
     showComments: function(view) {
         var category = view.model;
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        this.comments.show(new CommentsView({collection: commentsWithCategory}));
+        this.comments.show(new CommentsView({collection: commentsWithCategory, model: category}));
     }
 });
 

@@ -21,14 +21,16 @@ module.exports = Marionette.LayoutView.extend({
         categories.fetch().done(function() {
             if(!categories.length) categories.addDefault();
         });
-        this.form.show(new FormView({collection: this.collection}));
+        var commentsWithCategory = new Comments(this.collection.withCategory(categories.models[0].get('name')));
+
+        this.form.show(new FormView({collection: this.collection, categories: categories}));
         this.categories.show(new CategoriesView({collection: categories}));
-        this.comments.show(new CommentsView({collection: this.collection}));
+        this.comments.show(new CommentsView({collection: commentsWithCategory, model: categories.models[0]}));
     },
     showComments: function(view) {
         var category = view.model;
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        this.comments.show(new CommentsView({collection: commentsWithCategory}));
+        this.comments.show(new CommentsView({collection: commentsWithCategory, model: category}));
     }
 });
 
