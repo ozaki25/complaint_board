@@ -4,5 +4,5 @@ var Comment = require('../models/Comment');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Comment,
-    localStorage: new LocalStorage('ComplaintBoard')
+    localStorage: new LocalStorage('ComplaintBoard.comments')
 });

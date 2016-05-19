@@ -30,6 +30,8 @@
     </script>
 
     <script id="form_view" type="text/template">
+      <div class="panel panel-default">
+        <div class="panel-body">
       <form class="form-inline">
         <div class="form-group form-group-sm">
           <label class="control-label">カテゴリ</label>
@@ -41,22 +43,26 @@
         </div>
         <button type="button" class="btn btn-default btn-sm create-comment-btn">Create</button>
       </form>
+      </div>
+      </div>
     </script>
 
     <script id="categories_view" type="text/template">
-      <h1>CategoriesView</h1>
+      <div class="panel-heading">カテゴリ一覧</div>
+      <div id="categories" class="list-group"></div>
     </script>
 
     <script id="category_view" type="text/template">
-      <h1>CategoryView</h1>
+      <%- name %>
     </script>
 
     <script id="comments_view" type="text/template">
-      <h1>CommentsView</h1>
+      <div class="panel-heading">コメント一覧</div>
+      <div id="comments" class="panel-body"></div>
     </script>
 
     <script id="comment_view" type="text/template">
-      <h1>CommentView</h1>
+      <%- content %>(<%- category %>)
     </script>
 
     <script src="scripts/app.js"></script>
