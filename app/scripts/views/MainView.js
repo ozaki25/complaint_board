@@ -21,28 +21,32 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function() {
         var categories = new Categories();
-        categories.fetch().done(function() {
-            if(!categories.length) categories.addDefault();
-        });
         var firstCategory = categories.models[0];
         var commentsWithCategory = new Comments(this.collection.withCategory(firstCategory.get('name')));
 
-        this.form.show(new FormView({collection: this.collection, categories: categories}));
-        this.categories.show(new CategoriesView({collection: categories}));
-        this.comments.show(new CommentsView({collection: commentsWithCategory, model: firstCategory}));
+        var formView = new FormView({collection: this.collection, categories: categories});
+        var categoriesView = new CategoriesView({collection: categories});
+        var commentsView = new CommentsView({collection: commentsWithCategory, model: firstCategory});
+
+        this.form.show(formView);
+        this.categories.show(categoriesView);
+        this.comments.show(commentsView);
     },
     refreshComments: function(model) {
         var createdCategory = model.get('category');
         var currentViewCategory = this.comments.currentView.model.get('name');
+
         if(createdCategory === currentViewCategory) {
             var commentsWithCategory = new Comments(this.collection.withCategory(currentViewCategory));
-            this.comments.show(new CommentsView({collection: commentsWithCategory, model: this.comments.currentView.model}));
+            var commentsView = new CommentsView({collection: commentsWithCategory, model: this.comments.currentView.model});
+            this.comments.show(commentsView);
         }
     },
     showComments: function(view) {
         var category = view.model;
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        this.comments.show(new CommentsView({collection: commentsWithCategory, model: category}));
+        var commentsView = new CommentsView({collection: commentsWithCategory, model: category});
+        this.comments.show(commentsView);
     }
 });
 

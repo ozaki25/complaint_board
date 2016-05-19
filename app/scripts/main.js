@@ -14,7 +14,7 @@ var App = new Marionette.Application({
     onStart: function() {
         comments.fetch().done(function() {
             this.header.show(new HeaderView());
-            this.getRegion('main').show(new MainView({collection: comments}));
+            this.main.show(new MainView({collection: comments}));
         }.bind(this));
     }
 });

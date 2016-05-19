@@ -1,15 +1,16 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Category,
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
+    initialize: function() {
+        this.addDefault();
+    },
     addDefault: function() {
-        var categoryList = ['楽しいこと', '楽しくないこと'];
+        var categoryList = [ '楽しくない仕事', 'いらいらする仕事', 'つまんない仕事'];
         _(categoryList).each(function(category) {
-            this.create({name: category});
+            this.add({name: category});
         }.bind(this));
     }
 });

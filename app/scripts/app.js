@@ -1,21 +1,22 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Category,
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
+    initialize: function() {
+        this.addDefault();
+    },
     addDefault: function() {
-        var categoryList = ['楽しいこと', '楽しくないこと'];
+        var categoryList = [ '楽しくない仕事', 'いらいらする仕事', 'つまんない仕事'];
         _(categoryList).each(function(category) {
-            this.create({name: category});
+            this.add({name: category});
         }.bind(this));
     }
 });
 
-},{"../models/Category":4,"backbone":"backbone","backbone.LocalStorage":13,"underscore":"underscore"}],2:[function(require,module,exports){
+},{"../models/Category":4,"backbone":"backbone","underscore":"underscore"}],2:[function(require,module,exports){
 var Backbone = require('backbone');
 var LocalStorage = require('backbone.LocalStorage');
 var Comment = require('../models/Comment');
@@ -45,7 +46,7 @@ var App = new Marionette.Application({
     onStart: function() {
         comments.fetch().done(function() {
             this.header.show(new HeaderView());
-            this.getRegion('main').show(new MainView({collection: comments}));
+            this.main.show(new MainView({collection: comments}));
         }.bind(this));
     }
 });
@@ -186,28 +187,32 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function() {
         var categories = new Categories();
-        categories.fetch().done(function() {
-            if(!categories.length) categories.addDefault();
-        });
         var firstCategory = categories.models[0];
         var commentsWithCategory = new Comments(this.collection.withCategory(firstCategory.get('name')));
 
-        this.form.show(new FormView({collection: this.collection, categories: categories}));
-        this.categories.show(new CategoriesView({collection: categories}));
-        this.comments.show(new CommentsView({collection: commentsWithCategory, model: firstCategory}));
+        var formView = new FormView({collection: this.collection, categories: categories})
+        var categoriesView = new CategoriesView({collection: categories});
+        var commentsView = new CommentsView({collection: commentsWithCategory, model: firstCategory})
+
+        this.form.show(formView);
+        this.categories.show(categoriesView);
+        this.comments.show(commentsView);
     },
     refreshComments: function(model) {
-        var createdCategory = model.get('category')
+        var createdCategory = model.get('category');
         var currentViewCategory = this.comments.currentView.model.get('name');
+
         if(createdCategory === currentViewCategory) {
             var commentsWithCategory = new Comments(this.collection.withCategory(currentViewCategory));
-            this.comments.show(new CommentsView({collection: commentsWithCategory, model: this.comments.currentView.model}));
+            var commentsView = new CommentsView({collection: commentsWithCategory, model: this.comments.currentView.model});
+            this.comments.show(commentsView);
         }
     },
     showComments: function(view) {
         var category = view.model;
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        this.comments.show(new CommentsView({collection: commentsWithCategory, model: category}));
+        var commentsView = new CommentsView({collection: commentsWithCategory, model: category})
+        this.comments.show(commentsView);
     }
 });
 
