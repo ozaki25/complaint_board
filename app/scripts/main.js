@@ -1,3 +1,5 @@
+var $ = jQuery = require('jquery');
+var Bootstrap = require('bootstrap');
 var Marionette = require('backbone.marionette');
 var Comments = require('./collections/Comments');
 var HeaderView = require('./views/HeaderView');
