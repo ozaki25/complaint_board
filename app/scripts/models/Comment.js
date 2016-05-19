@@ -5,7 +5,8 @@ module.exports = Backbone.Model.extend({
     localStorage: new LocalStorage('ComplaintBoard.comments'),
     validation: {
         content: {
-            required: true
+            required: true,
+            msg: '必須項目です。'
         }
     }
 });

@@ -1,3 +1,4 @@
+var $ = require('jquery');
 var _ = require('underscore');
 var Validation = require('backbone.validation');
 var Marionette = require('backbone.marionette');
@@ -27,7 +28,21 @@ module.exports = Marionette.ItemView.extend({
     },
     onClickCreate: function() {
         this.model = new Comment();
-        Validation.bind(this);
+        Validation.bind(this, {
+            valid: function(view, attr) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.removeClass('has-error');
+                group.find('.help-inline').empty();
+            },
+            invalid: function(view, attr, error) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.addClass('has-error');
+                var target = group.find('.help-inline');
+                target.text(error);
+            }
+        });
 
         var category = this.ui.selectCategory.children(':checked').val();
         var content = this.ui.inputContent.val().trim();

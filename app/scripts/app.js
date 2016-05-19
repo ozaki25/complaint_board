@@ -67,7 +67,8 @@ module.exports = Backbone.Model.extend({
     localStorage: new LocalStorage('ComplaintBoard.comments'),
     validation: {
         content: {
-            required: true
+            required: true,
+            msg: '必須項目です。'
         }
     }
 });
@@ -133,6 +134,7 @@ module.exports = Marionette.CompositeView.extend({
 
 
 },{"./CommentView":8,"backbone.marionette":15}],10:[function(require,module,exports){
+var $ = require('jquery');
 var _ = require('underscore');
 var Validation = require('backbone.validation');
 var Marionette = require('backbone.marionette');
@@ -162,7 +164,21 @@ module.exports = Marionette.ItemView.extend({
     },
     onClickCreate: function() {
         this.model = new Comment();
-        Validation.bind(this);
+        Validation.bind(this, {
+            valid: function(view, attr) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.removeClass('has-error');
+                group.find('.help-inline').empty();
+            },
+            invalid: function(view, attr, error) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.addClass('has-error');
+                var target = group.find('.help-inline');
+                target.text(error);
+            }
+        });
 
         var category = this.ui.selectCategory.children(':checked').val();
         var content = this.ui.inputContent.val().trim();
@@ -175,7 +191,7 @@ module.exports = Marionette.ItemView.extend({
     }
 });
 
-},{"../models/Comment":5,"backbone.marionette":15,"backbone.validation":16,"underscore":"underscore"}],11:[function(require,module,exports){
+},{"../models/Comment":5,"backbone.marionette":15,"backbone.validation":16,"jquery":"jquery","underscore":"underscore"}],11:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
