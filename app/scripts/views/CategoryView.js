@@ -6,6 +6,13 @@ module.exports = Marionette.ItemView.extend({
     template: '#category_view',
     attributes: {
         'href': '#'
+    },
+    events: {
+        'click': 'onClick'
+    },
+    onClick: function(e) {
+        e.preventDefault();
+        this.triggerMethod('click:category');
     }
 });
 

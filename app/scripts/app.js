@@ -22,7 +22,10 @@ var Comment = require('../models/Comment');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Comment,
-    localStorage: new LocalStorage('ComplaintBoard.comments')
+    localStorage: new LocalStorage('ComplaintBoard.comments'),
+    withCategory: function(category) {
+        return this.where({category: category});
+    }
 });
 
 },{"../models/Comment":5,"backbone":"backbone","backbone.LocalStorage":13}],3:[function(require,module,exports){
@@ -78,6 +81,13 @@ module.exports = Marionette.ItemView.extend({
     template: '#category_view',
     attributes: {
         'href': '#'
+    },
+    events: {
+        'click': 'onClick'
+    },
+    onClick: function(e) {
+        e.preventDefault();
+        this.triggerMethod('click:category');
     }
 });
 
@@ -87,10 +97,7 @@ var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
     tagName: 'p',
-    template: '#comment_view',
-    initialize: function() {
-        console.log('initialize comment view', this.model);
-    }
+    template: '#comment_view'
 });
 
 
@@ -102,10 +109,7 @@ module.exports = Marionette.CompositeView.extend({
     className: 'panel panel-primary',
     childView: CommentView,
     childViewContainer: '#comments',
-    template: '#comments_view',
-    initialize: function() {
-        console.log('initialize comments view', this.collection);
-    }
+    template: '#comments_view'
 });
 
 
@@ -143,6 +147,7 @@ module.exports = Marionette.ItemView.extend({
 },{"backbone.marionette":15}],12:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 var Categories = require('../collections/Categories');
+var Comments = require('../collections/Comments');
 var FormView = require('./FormView');
 var CategoriesView = require('./CategoriesView');
 var CommentsView = require('./CommentsView');
@@ -155,6 +160,9 @@ module.exports = Marionette.LayoutView.extend({
         categories: '#categories',
         comments: '#comments'
     },
+    childEvents: {
+        'click:category': 'showComments'
+    },
     onRender: function() {
         var categories = new Categories();
         categories.fetch().done(function() {
@@ -163,11 +171,16 @@ module.exports = Marionette.LayoutView.extend({
         this.form.show(new FormView({collection: this.collection}));
         this.categories.show(new CategoriesView({collection: categories}));
         this.comments.show(new CommentsView({collection: this.collection}));
+    },
+    showComments: function(view) {
+        var category = view.model;
+        var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
+        this.comments.show(new CommentsView({collection: commentsWithCategory}));
     }
 });
 
 
-},{"../collections/Categories":1,"./CategoriesView":6,"./CommentsView":9,"./FormView":10,"backbone.marionette":15}],13:[function(require,module,exports){
+},{"../collections/Categories":1,"../collections/Comments":2,"./CategoriesView":6,"./CommentsView":9,"./FormView":10,"backbone.marionette":15}],13:[function(require,module,exports){
 /**
  * Backbone localStorage Adapter
  * Version 1.1.16
