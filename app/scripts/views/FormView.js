@@ -1,12 +1,13 @@
 var _ = require('underscore');
+var Validation = require('backbone.validation');
 var Marionette = require('backbone.marionette');
-var Categories = require('../collections/Categories');
+var Comment = require('../models/Comment');
 
 module.exports = Marionette.ItemView.extend({
     template: '#form_view',
     ui: {
         selectCategory:'select.category',
-        inputComment:'input.comment',
+        inputContent:'input.content',
         inputs:'input'
     },
     events: {
@@ -25,9 +26,16 @@ module.exports = Marionette.ItemView.extend({
         }
     },
     onClickCreate: function() {
+        this.model = new Comment();
+        Validation.bind(this);
+
         var category = this.ui.selectCategory.children(':checked').val();
-        var comment = this.ui.inputComment.val().trim();
-        this.collection.create({category: category, content: comment});
-        this.ui.inputs.val('');
+        var content = this.ui.inputContent.val().trim();
+        this.model.set({category: category, content: content});
+        if(this.model.isValid(true)) {
+            this.model.save();
+            this.collection.add(this.model);
+            this.ui.inputs.val('');
+        }
     }
 });
