@@ -135,12 +135,15 @@ module.exports = Marionette.CompositeView.extend({
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
                 group.removeClass('has-error');
-                group.find('.help-block').empty();
+                group.find('.help-block').remove();
             },
             invalid: function(view, attr, error) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
                 group.addClass('has-error');
+                if(group.find('.help-block').length == 0) {
+                    group.find('.form-control').after('<p class=\'help-block\'></p>');
+                }
                 var target = group.find('.help-block');
                 target.text(error);
             }
