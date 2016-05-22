@@ -79,6 +79,34 @@
       </li>
     </script>
 
+    <script id="categories_main_view" type="text/template">
+      <div class="row">
+        <div class="col-md-offset-3 col-md-6">
+          <div class="panel panel-primary">
+            <div class="panel-heading">カテゴリ一覧</div>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <td colspan="2">
+                    <input type="text" class="form-control input-sm">
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-default btn-sm">追加</button>
+                  </td>
+              </tbody>
+              <tbody id="show_categories"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script id="category_item_view" type="text/template">
+      <td><%- name %></td>
+      <td><a class="btn btn-primary btn-xs">編集</a></td>
+      <td><a class="btn btn-link btn-xs">削除</a></td>
+    </script>
+
     <script src="scripts/app.js"></script>
   </body>
 </html>

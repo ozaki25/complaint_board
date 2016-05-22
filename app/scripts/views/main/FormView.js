@@ -2,7 +2,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var Validation = require('backbone.validation');
 var Marionette = require('backbone.marionette');
-var Comment = require('../models/Comment');
+var Comment = require('../../models/Comment');
 
 module.exports = Marionette.ItemView.extend({
     template: '#form_view',
