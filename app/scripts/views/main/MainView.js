@@ -15,7 +15,7 @@ module.exports = Marionette.LayoutView.extend({
         comments: '#comments'
     },
     collectionEvents: {
-        'add': 'refreshComments'
+        'add': 'addCommentToCurrentView'
     },
     childEvents: {
         'click:category': 'showSelectCategory',
@@ -33,14 +33,11 @@ module.exports = Marionette.LayoutView.extend({
         this.categories.show(categoriesView);
         this.showComments(this.categoryList.models[0], true, false);
     },
-    refreshComments: function(model) {
+    addCommentToCurrentView: function(model) {
         var currentView = this.comments.currentView;
         var currentCategory = currentView.model.get('name');
         var createdCategory = model.get('category');
-
-        if(createdCategory === currentCategory) {
-            this.showComments(currentView.model, currentView.first, currentView.last);
-        }
+        if(createdCategory === currentCategory) currentView.collection.add(model);
     },
     showSelectCategory: function(view) {
         var currentPosition = _(this.categoryList.models).indexOf(view.model);
