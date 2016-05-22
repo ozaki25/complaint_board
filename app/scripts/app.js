@@ -76,11 +76,20 @@ app.start();
 
 },{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":6,"./views/categories/CategoriesView":7,"./views/main/MainView":14,"backbone":"backbone","backbone.marionette":17,"bootstrap":20,"jquery":"jquery"}],4:[function(require,module,exports){
 var Backbone = require('backbone');
+var LocalStorage = require('backbone.LocalStorage');
 
 module.exports = Backbone.Model.extend({
+    localStorage: new LocalStorage('ComplaintBoard.categories'),
+    validation: {
+        name: {
+            required: true,
+            msg: '必須項目です。'
+        }
+    }
+
 });
 
-},{"backbone":"backbone"}],5:[function(require,module,exports){
+},{"backbone":"backbone","backbone.LocalStorage":15}],5:[function(require,module,exports){
 var Backbone = require('backbone');
 var LocalStorage = require('backbone.LocalStorage');
 
@@ -102,18 +111,51 @@ module.exports = Marionette.ItemView.extend({
 });
 
 },{"backbone.marionette":17}],7:[function(require,module,exports){
+var $ = require('jquery');
+var Validation = require('backbone.validation');
 var Marionette = require('backbone.marionette');
+var Category = require('../../models/Category');
 var CategoryView = require('./CategoryView');
 
 module.exports = Marionette.CompositeView.extend({
     className: 'container',
     childView: CategoryView,
     childViewContainer: '#show_categories',
-    template: '#categories_main_view'
+    template: '#categories_main_view',
+    ui: {
+        inputName: 'input.category-name'
+    },
+    events: {
+        'click .add-category': 'onClickAddCategory'
+    },
+    onClickAddCategory: function() {
+        this.model = new Category();
+        Validation.bind(this, {
+            valid: function(view, attr) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.removeClass('has-error');
+                group.find('.help-block').empty();
+            },
+            invalid: function(view, attr, error) {
+                var control = view.$('[name=' + attr + ']');
+                var group = control.closest('.form-group');
+                group.addClass('has-error');
+                var target = group.find('.help-block');
+                target.text(error);
+            }
+        });
+        var name = this.ui.inputName.val().trim();
+        this.model.set({name: name});
+        if(this.model.isValid(true)) {
+            this.collection.add(this.model);
+            this.ui.inputName.val('');
+        }
+    }
 });
 
 
-},{"./CategoryView":8,"backbone.marionette":17}],8:[function(require,module,exports){
+},{"../../models/Category":4,"./CategoryView":8,"backbone.marionette":17,"backbone.validation":18,"jquery":"jquery"}],8:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = Marionette.ItemView.extend({
