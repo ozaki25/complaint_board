@@ -1,22 +1,26 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
+var LocalStorage = require('backbone.LocalStorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Category,
+    localStorage: new LocalStorage('ComplaintBoard.categories'),
     initialize: function() {
-        this.addDefault();
+        this.fetch().done(function() {
+            if(!this.length) this.addDefault();
+        }.bind(this));
     },
     addDefault: function() {
         var categoryList = [ '楽しくない仕事', 'いらいらする仕事', 'つまんない仕事'];
         _(categoryList).each(function(category) {
-            this.add({name: category});
+            this.create({name: category});
         }.bind(this));
     }
 });
 
-},{"../models/Category":4,"backbone":"backbone","underscore":"underscore"}],2:[function(require,module,exports){
+},{"../models/Category":4,"backbone":"backbone","backbone.LocalStorage":15,"underscore":"underscore"}],2:[function(require,module,exports){
 var Backbone = require('backbone');
 var LocalStorage = require('backbone.LocalStorage');
 var Comment = require('../models/Comment');
@@ -40,7 +44,6 @@ var HeaderView = require('./views/HeaderView');
 var MainView = require('./views/main/MainView');
 var CategoriesView = require('./views/categories/CategoriesView');
 
-var comments = new Comments();
 var appRouter = Marionette.AppRouter.extend({
     appRoutes: {
         ""                    : "main",
@@ -51,12 +54,14 @@ var appRouter = Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
+            var comments = new Comments();
             comments.fetch().done(function() {
                 app.main.show(new MainView({collection: comments}));
             });
         },
         categories: function() {
-            app.main.show(new CategoriesView({collection: new Categories()}));
+            var categories = new Categories();
+            app.main.show(new CategoriesView({collection: categories}));
         }
     }
 });

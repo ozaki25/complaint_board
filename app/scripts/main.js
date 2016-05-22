@@ -8,7 +8,6 @@ var HeaderView = require('./views/HeaderView');
 var MainView = require('./views/main/MainView');
 var CategoriesView = require('./views/categories/CategoriesView');
 
-var comments = new Comments();
 var appRouter = Marionette.AppRouter.extend({
     appRoutes: {
         ""                    : "main",
@@ -19,12 +18,14 @@ var appRouter = Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
+            var comments = new Comments();
             comments.fetch().done(function() {
                 app.main.show(new MainView({collection: comments}));
             });
         },
         categories: function() {
-            app.main.show(new CategoriesView({collection: new Categories()}));
+            var categories = new Categories();
+            app.main.show(new CategoriesView({collection: categories}));
         }
     }
 });
