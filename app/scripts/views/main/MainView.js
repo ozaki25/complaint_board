@@ -22,8 +22,8 @@ module.exports = Marionette.LayoutView.extend({
         'click:previous': 'showPreviousCategory',
         'click:next': 'showNextCategory'
     },
-    initialize: function() {
-        this.categoryList = new Categories();
+    initialize: function(options) {
+        this.categoryList = options.categoryList;
     },
     onRender: function() {
         var formView = new FormView({collection: this.collection, categories: this.categoryList});
