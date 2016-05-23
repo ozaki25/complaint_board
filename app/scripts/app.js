@@ -154,7 +154,7 @@ module.exports = Marionette.CompositeView.extend({
             }
         });
         var name = this.ui.inputName.val().trim();
-        this.model.set({name: name});
+        this.model.save({name: name});
         if(this.model.isValid(true)) {
             this.collection.add(this.model);
             this.ui.inputName.val('');
