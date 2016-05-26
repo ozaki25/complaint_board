@@ -25,8 +25,16 @@
       </nav>
     </script>
 
+    <script id="alert_view" type="text/template">
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <%= message %>
+    </script>
+
     <script id="main_view" type="text/template">
       <div class="row">
+        <div id="alert" class="col-md-12"></div>
         <div id="new_comment" class="col-md-12"></div>
         <div id="categories" class="col-md-3"></div>
         <div id="comments" class="col-md-9"></div>
