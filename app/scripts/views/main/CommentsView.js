@@ -16,8 +16,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         'click @ui.next': 'onClickNextButton'
     },
     initialize: function(options) {
-        this.first = options.first;
-        this.last = options.last;
         this.category = options.category;
     },
     templateHelpers: function() {
@@ -26,8 +24,8 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         };
     },
     onRender: function() {
-        if(this.first) this.ui.previous.closest('li').addClass('disabled');
-        if(this.last) this.ui.next.closest('li').addClass('disabled');
+        if(this.category.isFirst()) this.ui.previous.closest('li').addClass('disabled');
+        if(this.category.isLast()) this.ui.next.closest('li').addClass('disabled');
     },
     onClickPreviousButton: function(e) {
         e.preventDefault();

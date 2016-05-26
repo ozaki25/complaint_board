@@ -2,6 +2,7 @@ var $ = jQuery = require('jquery');
 require('bootstrap');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
+
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
@@ -21,10 +22,8 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            comments.fetch().done(function() {
-                var mainView = new MainView({collection: comments, categoryList: categories});
-                app.main.show(mainView);
-            });
+            var mainView = new MainView({collection: comments, categoryList: categories});
+            app.main.show(mainView);
         },
         categories: function() {
             var categoriesView = new CategoriesView({collection: categories});

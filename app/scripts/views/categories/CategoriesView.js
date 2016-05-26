@@ -25,7 +25,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         if(this.model.isValid(true)) {
             this.collection.create(this.model);
             this.ui.inputName.val('');
-            console.log(this.collection);
         }
     },
     bindBackboneValidation: function() {

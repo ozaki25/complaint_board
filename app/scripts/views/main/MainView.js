@@ -32,7 +32,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
         this.form.show(formView);
         this.categories.show(categoriesView);
-        this.showComments(this.categoryList.models[0], true, false);
+        this.showComments(this.categoryList.models[0]);
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
@@ -41,30 +41,21 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
     showSelectCategory: function(categoryView) {
-        var currentPosition = categoryView.model.getPosition();
-        var first = currentPosition === 0;
-        var last = currentPosition === this.categoryList.length - 1;
-        this.showComments(categoryView.model, first, last);
+        this.showComments(categoryView.model);
     },
     showPreviousCategory: function(commentView) {
         var currentPosition = commentView.category.getPosition();
         var previous = this.categoryList.models[currentPosition - 1];
-        if(previous) {
-            var first = currentPosition === 1;
-            this.showComments(previous, first, false);
-        }
+        if(previous) this.showComments(previous);
     },
     showNextCategory: function(commentView) {
         var currentPosition = commentView.category.getPosition();
         var next = this.categoryList.models[currentPosition + 1];
-        if(next) {
-            var last = currentPosition + 2 === this.categoryList.length;
-            this.showComments(next, false, last)
-        }
+        if(next) this.showComments(next)
     },
-    showComments: function(category, first, last) {
+    showComments: function(category) {
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, category: category, first: first, last: last});
+        var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
         this.comments.show(commentsView);
     }
 });

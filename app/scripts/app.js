@@ -28,6 +28,9 @@ var Comment = require('../models/Comment');
 module.exports = Backbone.Collection.extend({
     model: Comment,
     localStorage: new Backbone.LocalStorage('ComplaintBoard.comments'),
+    initialize: function() {
+        this.fetch();
+    },
     withCategory: function(category) {
         return this.where({category: category});
     }
@@ -38,6 +41,7 @@ var $ = jQuery = require('jquery');
 require('bootstrap');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
+
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
@@ -57,10 +61,8 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            comments.fetch().done(function() {
-                var mainView = new MainView({collection: comments, categoryList: categories});
-                app.main.show(mainView);
-            });
+            var mainView = new MainView({collection: comments, categoryList: categories});
+            app.main.show(mainView);
         },
         categories: function() {
             var categoriesView = new CategoriesView({collection: categories});
@@ -95,6 +97,12 @@ module.exports = Backbone.Model.extend({
     },
     getPosition: function() {
         return _(this.collection.models).indexOf(this);
+    },
+    isFirst: function() {
+        return this.id === _(this.collection.models).first().id;
+    },
+    isLast: function() {
+        return this.id === _(this.collection.models).last().id;
     }
 });
 
@@ -146,7 +154,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         if(this.model.isValid(true)) {
             this.collection.create(this.model);
             this.ui.inputName.val('');
-            console.log(this.collection);
         }
     },
     bindBackboneValidation: function() {
@@ -258,8 +265,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         'click @ui.next': 'onClickNextButton'
     },
     initialize: function(options) {
-        this.first = options.first;
-        this.last = options.last;
         this.category = options.category;
     },
     templateHelpers: function() {
@@ -268,8 +273,8 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         };
     },
     onRender: function() {
-        if(this.first) this.ui.previous.closest('li').addClass('disabled');
-        if(this.last) this.ui.next.closest('li').addClass('disabled');
+        if(this.category.isFirst()) this.ui.previous.closest('li').addClass('disabled');
+        if(this.category.isLast()) this.ui.next.closest('li').addClass('disabled');
     },
     onClickPreviousButton: function(e) {
         e.preventDefault();
@@ -380,7 +385,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
         this.form.show(formView);
         this.categories.show(categoriesView);
-        this.showComments(this.categoryList.models[0], true, false);
+        this.showComments(this.categoryList.models[0]);
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
@@ -389,30 +394,21 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
     showSelectCategory: function(categoryView) {
-        var currentPosition = categoryView.model.getPosition();
-        var first = currentPosition === 0;
-        var last = currentPosition === this.categoryList.length - 1;
-        this.showComments(categoryView.model, first, last);
+        this.showComments(categoryView.model);
     },
     showPreviousCategory: function(commentView) {
         var currentPosition = commentView.category.getPosition();
         var previous = this.categoryList.models[currentPosition - 1];
-        if(previous) {
-            var first = currentPosition === 1;
-            this.showComments(previous, first, false);
-        }
+        if(previous) this.showComments(previous);
     },
     showNextCategory: function(commentView) {
         var currentPosition = commentView.category.getPosition();
         var next = this.categoryList.models[currentPosition + 1];
-        if(next) {
-            var last = currentPosition + 2 === this.categoryList.length;
-            this.showComments(next, false, last)
-        }
+        if(next) this.showComments(next)
     },
-    showComments: function(category, first, last) {
+    showComments: function(category) {
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, category: category, first: first, last: last});
+        var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
         this.comments.show(commentsView);
     }
 });
