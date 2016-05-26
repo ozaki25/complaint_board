@@ -50,6 +50,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var content = this.ui.inputContent.val().trim();
         this.model.set({category: category, content: content});
         if(this.model.isValid(true)) {
+            this.setCSRFToken();
             this.collection.create(this.model);
             this.ui.inputs.val('');
         }
@@ -70,5 +71,14 @@ module.exports = Backbone.Marionette.ItemView.extend({
                 target.text(error);
             }
         });
+    },
+    setCSRFToken: function() {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        console.log('token', token);
+        Backbone.Model.prototype.toJSON = function() {
+            return _(_.clone(this.attributes)).extend({
+                authenticity_token: token
+            });
+        };
     }
 });

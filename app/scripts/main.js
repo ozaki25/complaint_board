@@ -22,8 +22,12 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            var mainView = new MainView({collection: comments, categoryList: categories});
-            app.main.show(mainView);
+            console.log("fetch");
+            categories.fetch({dataType: 'jsonp'});
+                console.log(categories);
+            //if(!categories.length) categories.addDefault();
+                var mainView = new MainView({collection: comments, categoryList: categories});
+                app.main.show(mainView);
         },
         categories: function() {
             var categoryMainView = new CategoryMainView({collection: categories});

@@ -6,12 +6,8 @@ var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     model: Category,
-    localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
-    initialize: function() {
-        this.fetch().done(function() {
-            if(!this.length) this.addDefault();
-        }.bind(this));
-    },
+    url: 'http://localhost:3030/categories',
+    //localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
     addDefault: function() {
         var categoryList = [ '楽しくない仕事', 'いらいらする仕事', 'つまんない仕事'];
         _(categoryList).each(function(category) {
@@ -61,8 +57,12 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            var mainView = new MainView({collection: comments, categoryList: categories});
-            app.main.show(mainView);
+            console.log("fetch");
+            categories.fetch({dataType: 'jsonp'});
+                console.log(categories);
+            //if(!categories.length) categories.addDefault();
+                var mainView = new MainView({collection: comments, categoryList: categories});
+                app.main.show(mainView);
         },
         categories: function() {
             var categoryMainView = new CategoryMainView({collection: categories});
@@ -426,6 +426,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var content = this.ui.inputContent.val().trim();
         this.model.set({category: category, content: content});
         if(this.model.isValid(true)) {
+            this.setCSRFToken();
             this.collection.create(this.model);
             this.ui.inputs.val('');
         }
@@ -446,6 +447,15 @@ module.exports = Backbone.Marionette.ItemView.extend({
                 target.text(error);
             }
         });
+    },
+    setCSRFToken: function() {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        console.log('token', token);
+        Backbone.Model.prototype.toJSON = function() {
+            return _(_.clone(this.attributes)).extend({
+                authenticity_token: token
+            });
+        };
     }
 });
 
