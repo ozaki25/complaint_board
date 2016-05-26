@@ -1,12 +1,12 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
+Backbone.LocalStorage = require('backbone.localstorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Category,
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
+    localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
     initialize: function() {
         this.fetch().done(function() {
             if(!this.length) this.addDefault();
@@ -20,24 +20,24 @@ module.exports = Backbone.Collection.extend({
     }
 });
 
-},{"../models/Category":4,"backbone":"backbone","backbone.LocalStorage":15,"underscore":"underscore"}],2:[function(require,module,exports){
+},{"../models/Category":4,"backbone":"backbone","backbone.localstorage":16,"underscore":"underscore"}],2:[function(require,module,exports){
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
+Backbone.LocalStorage = require('backbone.localstorage');
 var Comment = require('../models/Comment');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Comment,
-    localStorage: new LocalStorage('ComplaintBoard.comments'),
+    localStorage: new Backbone.LocalStorage('ComplaintBoard.comments'),
     withCategory: function(category) {
         return this.where({category: category});
     }
 });
 
-},{"../models/Comment":5,"backbone":"backbone","backbone.LocalStorage":15}],3:[function(require,module,exports){
+},{"../models/Comment":5,"backbone":"backbone","backbone.localstorage":16}],3:[function(require,module,exports){
 var $ = jQuery = require('jquery');
-var Bootstrap = require('bootstrap');
+require('bootstrap');
 var Backbone = require('backbone');
-var Marionette = require('backbone.marionette');
+Backbone.Marionette = require('backbone.marionette');
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
@@ -46,10 +46,11 @@ var CategoriesView = require('./views/categories/CategoriesView');
 
 var comments = new Comments();
 var categories = new Categories();
-var appRouter = Marionette.AppRouter.extend({
+
+var appRouter = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
-        ""                    : "main",
-        "categories"          : "categories"
+        "": "main",
+        "categories": "categories"
     },
     initialize: function() {
         app.header.show(new HeaderView());
@@ -57,16 +58,18 @@ var appRouter = Marionette.AppRouter.extend({
     controller: {
         main: function() {
             comments.fetch().done(function() {
-                app.main.show(new MainView({collection: comments, categoryList: categories}));
+                var mainView = new MainView({collection: comments, categoryList: categories});
+                app.main.show(mainView);
             });
         },
         categories: function() {
-            app.main.show(new CategoriesView({collection: categories}));
+            var categoriesView = new CategoriesView({collection: categories});
+            app.main.show(categoriesView);
         }
     }
 });
 
-var app = new Marionette.Application({
+var app = new Backbone.Marionette.Application({
     regions: {
         header: '#header',
         main: '#main'
@@ -80,26 +83,26 @@ var app = new Marionette.Application({
 app.start();
 
 },{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":6,"./views/categories/CategoriesView":7,"./views/main/MainView":14,"backbone":"backbone","backbone.marionette":17,"bootstrap":20,"jquery":"jquery"}],4:[function(require,module,exports){
+var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
 
 module.exports = Backbone.Model.extend({
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
     validation: {
         name: {
             required: true,
             msg: '必須項目です。'
         }
+    },
+    getPosition: function() {
+        console.log('getPosition');
+        return _(this.collection.models).indexOf(this);
     }
-
 });
 
-},{"backbone":"backbone","backbone.LocalStorage":15}],5:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],5:[function(require,module,exports){
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
 
 module.exports = Backbone.Model.extend({
-    localStorage: new LocalStorage('ComplaintBoard.comments'),
     validation: {
         content: {
             required: true,
@@ -108,21 +111,23 @@ module.exports = Backbone.Model.extend({
     }
 });
 
-},{"backbone":"backbone","backbone.LocalStorage":15}],6:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
+},{"backbone":"backbone"}],6:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     template: '#header_view'
 });
 
-},{"backbone.marionette":17}],7:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":17}],7:[function(require,module,exports){
 var $ = require('jquery');
-var Validation = require('backbone.validation');
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
+Backbone.Validation = require('backbone.validation');
 var Category = require('../../models/Category');
 var CategoryView = require('./CategoryView');
 
-module.exports = Marionette.CompositeView.extend({
+module.exports = Backbone.Marionette.CompositeView.extend({
     className: 'container',
     childView: CategoryView,
     childViewContainer: '#show_categories',
@@ -135,7 +140,18 @@ module.exports = Marionette.CompositeView.extend({
     },
     onClickAddCategory: function() {
         this.model = new Category();
-        Validation.bind(this, {
+        this.bindBackboneValidation();
+
+        var name = this.ui.inputName.val().trim();
+        this.model.set({name: name});
+        if(this.model.isValid(true)) {
+            this.collection.create(this.model);
+            this.ui.inputName.val('');
+            console.log(this.collection);
+        }
+    },
+    bindBackboneValidation: function() {
+        Backbone.Validation.bind(this, {
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
@@ -147,26 +163,22 @@ module.exports = Marionette.CompositeView.extend({
                 var group = control.closest('.form-group');
                 group.addClass('has-error');
                 if(group.find('.help-block').length == 0) {
-                    group.find('.form-control').after('<p class=\'help-block\'></p>');
+                    control.after('<p class=\'help-block\'></p>');
                 }
                 var target = group.find('.help-block');
                 target.text(error);
             }
         });
-        var name = this.ui.inputName.val().trim();
-        this.model.save({name: name});
-        if(this.model.isValid(true)) {
-            this.collection.add(this.model);
-            this.ui.inputName.val('');
-        }
+
     }
 });
 
 
-},{"../../models/Category":4,"./CategoryView":8,"backbone.marionette":17,"backbone.validation":18,"jquery":"jquery"}],8:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
+},{"../../models/Category":4,"./CategoryView":8,"backbone":"backbone","backbone.marionette":17,"backbone.validation":18,"jquery":"jquery"}],8:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     tagName: 'tr',
     template: '#category_item_view',
     events: {
@@ -178,22 +190,23 @@ module.exports = Marionette.ItemView.extend({
     }
 });
 
-},{"backbone.marionette":17}],9:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
+},{"backbone":"backbone","backbone.marionette":17}],9:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var CategoryView = require('./CategoryView');
 
-module.exports = Marionette.CompositeView.extend({
+module.exports = Backbone.Marionette.CompositeView.extend({
     className: 'panel panel-success',
     childView: CategoryView,
     childViewContainer: '#categories',
     template: '#categories_view'
 });
 
+},{"./CategoryView":10,"backbone":"backbone","backbone.marionette":17}],10:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 
-},{"./CategoryView":10,"backbone.marionette":17}],10:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
-
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     tagName: 'a',
     className: 'list-group-item',
     template: '#category_view',
@@ -210,10 +223,11 @@ module.exports = Marionette.ItemView.extend({
 });
 
 
-},{"backbone.marionette":17}],11:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
+},{"backbone":"backbone","backbone.marionette":17}],11:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     tagName: 'ul',
     template: '#comment_view',
     events: {
@@ -226,26 +240,33 @@ module.exports = Marionette.ItemView.extend({
 });
 
 
-},{"backbone.marionette":17}],12:[function(require,module,exports){
-var Marionette = require('backbone.marionette');
+},{"backbone":"backbone","backbone.marionette":17}],12:[function(require,module,exports){
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var CommentView = require('./CommentView');
 
-module.exports = Marionette.CompositeView.extend({
+module.exports = Backbone.Marionette.CompositeView.extend({
     className: 'panel panel-primary',
     childView: CommentView,
     childViewContainer: '#comments',
     template: '#comments_view',
-    events: {
-        'click #previous-category': 'onClickPreviousButton',
-        'click #next-category': 'onClickNextButton'
-    },
     ui: {
         'previous': '#previous-category',
         'next': '#next-category'
     },
+    events: {
+        'click @ui.previous': 'onClickPreviousButton',
+        'click @ui.next': 'onClickNextButton'
+    },
     initialize: function(options) {
         this.first = options.first;
         this.last = options.last;
+        this.category = options.category;
+    },
+    templateHelpers: function() {
+        return {
+            categoryName: this.category.get('name')
+        };
     },
     onRender: function() {
         if(this.first) this.ui.previous.closest('li').addClass('disabled');
@@ -262,38 +283,52 @@ module.exports = Marionette.CompositeView.extend({
 });
 
 
-},{"./CommentView":11,"backbone.marionette":17}],13:[function(require,module,exports){
+},{"./CommentView":11,"backbone":"backbone","backbone.marionette":17}],13:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
-var Validation = require('backbone.validation');
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
+Backbone.Validation = require('backbone.validation');
 var Comment = require('../../models/Comment');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     template: '#form_view',
     ui: {
-        selectCategory:'select.category',
-        inputContent:'input.content',
-        inputs:'input'
+        selectCategory: 'select.category',
+        inputContent:   'input.content',
+        inputs:         'input',
+        createBtn:      '.create-comment-btn'
     },
     events: {
-        'click .create-comment-btn': 'onClickCreate'
+        'click @ui.createBtn': 'onClickCreate'
     },
     initialize: function(options) {
         this.categories = options.categories;
     },
-    templateHelpers: function () {
+    templateHelpers: function() {
         return {
             categoryList: function() {
                 return _(this.categories.models).map(function(category) {
-                    return '<option value="' + category.get('name') + '">' + category.get('name') + '</option>';
+                    var categoryName = category.get('name');
+                    return '<option value="' + categoryName + '">' + categoryName + '</option>';
                 }).join('');
             }.bind(this)
         }
     },
     onClickCreate: function() {
         this.model = new Comment();
-        Validation.bind(this, {
+        this.bindBackboneValidation();
+
+        var category = this.ui.selectCategory.children(':checked').val();
+        var content = this.ui.inputContent.val().trim();
+        this.model.set({category: category, content: content});
+        if(this.model.isValid(true)) {
+            this.collection.create(this.model);
+            this.ui.inputs.val('');
+        }
+    },
+    bindBackboneValidation: function() {
+        Backbone.Validation.bind(this, {
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
@@ -308,28 +343,20 @@ module.exports = Marionette.ItemView.extend({
                 target.text(error);
             }
         });
-
-        var category = this.ui.selectCategory.children(':checked').val();
-        var content = this.ui.inputContent.val().trim();
-        this.model.set({category: category, content: content});
-        if(this.model.isValid(true)) {
-            this.model.save();
-            this.collection.add(this.model);
-            this.ui.inputs.val('');
-        }
     }
 });
 
-},{"../../models/Comment":5,"backbone.marionette":17,"backbone.validation":18,"jquery":"jquery","underscore":"underscore"}],14:[function(require,module,exports){
+},{"../../models/Comment":5,"backbone":"backbone","backbone.marionette":17,"backbone.validation":18,"jquery":"jquery","underscore":"underscore"}],14:[function(require,module,exports){
 var _ = require('underscore');
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var Categories = require('../../collections/Categories');
 var Comments = require('../../collections/Comments');
 var FormView = require('./FormView');
 var CategoriesView = require('./CategoriesView');
 var CommentsView = require('./CommentsView');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = Backbone.Marionette.LayoutView.extend({
     className: 'container',
     template: '#main_view',
     regions: {
@@ -356,43 +383,238 @@ module.exports = Marionette.LayoutView.extend({
         this.categories.show(categoriesView);
         this.showComments(this.categoryList.models[0], true, false);
     },
-    addCommentToCurrentView: function(model) {
+    addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        var currentCategory = currentView.model.get('name');
-        var createdCategory = model.get('category');
-        if(createdCategory === currentCategory) currentView.collection.add(model);
+        var currentCategory = currentView.category.get('name');
+        var createdCategory = comment.get('category');
+        if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
-    showSelectCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showSelectCategory: function(categoryView) {
+        //var currentPosition = categoryView.model.getPosition();
+        var currentPosition = _(categoryView.model.collection.models).indexOf(categoryView.model);
         var first = currentPosition === 0;
         var last = currentPosition === this.categoryList.length - 1;
-        this.showComments(view.model, first, last);
+        this.showComments(categoryView.model, first, last);
     },
-    showPreviousCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showPreviousCategory: function(commentView) {
+        //var currentPosition = commentView.category.getPosition();
+        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
         var previous = this.categoryList.models[currentPosition - 1];
         if(previous) {
-            var isFirst = currentPosition === 1;
-            this.showComments(previous, isFirst, false);
+            var first = currentPosition === 1;
+            this.showComments(previous, first, false);
         }
     },
-    showNextCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showNextCategory: function(commentView) {
+        //var currentPosition = commentView.category.getPosition();
+        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
         var next = this.categoryList.models[currentPosition + 1];
         if(next) {
-            var isLast = currentPosition + 2 === this.categoryList.length;
-            this.showComments(next, false, isLast)
+            var last = currentPosition + 2 === this.categoryList.length;
+            this.showComments(next, false, last)
         }
     },
     showComments: function(category, first, last) {
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, model: category, first: first, last: last});
+        var commentsView = new CommentsView({collection: commentsWithCategory, category: category, first: first, last: last});
         this.comments.show(commentsView);
     }
 });
 
 
-},{"../../collections/Categories":1,"../../collections/Comments":2,"./CategoriesView":9,"./CommentsView":12,"./FormView":13,"backbone.marionette":17,"underscore":"underscore"}],15:[function(require,module,exports){
+},{"../../collections/Categories":1,"../../collections/Comments":2,"./CategoriesView":9,"./CommentsView":12,"./FormView":13,"backbone":"backbone","backbone.marionette":17,"underscore":"underscore"}],15:[function(require,module,exports){
+// Backbone.BabySitter
+// -------------------
+// v0.1.11
+//
+// Copyright (c)2016 Derick Bailey, Muted Solutions, LLC.
+// Distributed under MIT license
+//
+// http://github.com/marionettejs/backbone.babysitter
+
+(function(root, factory) {
+
+  if (typeof define === 'function' && define.amd) {
+    define(['backbone', 'underscore'], function(Backbone, _) {
+      return factory(Backbone, _);
+    });
+  } else if (typeof exports !== 'undefined') {
+    var Backbone = require('backbone');
+    var _ = require('underscore');
+    module.exports = factory(Backbone, _);
+  } else {
+    factory(root.Backbone, root._);
+  }
+
+}(this, function(Backbone, _) {
+  'use strict';
+
+  var previousChildViewContainer = Backbone.ChildViewContainer;
+
+  // BabySitter.ChildViewContainer
+  // -----------------------------
+  //
+  // Provide a container to store, retrieve and
+  // shut down child views.
+  
+  Backbone.ChildViewContainer = (function (Backbone, _) {
+  
+    // Container Constructor
+    // ---------------------
+  
+    var Container = function(views){
+      this._views = {};
+      this._indexByModel = {};
+      this._indexByCustom = {};
+      this._updateLength();
+  
+      _.each(views, this.add, this);
+    };
+  
+    // Container Methods
+    // -----------------
+  
+    _.extend(Container.prototype, {
+  
+      // Add a view to this container. Stores the view
+      // by `cid` and makes it searchable by the model
+      // cid (and model itself). Optionally specify
+      // a custom key to store an retrieve the view.
+      add: function(view, customIndex){
+        var viewCid = view.cid;
+  
+        // store the view
+        this._views[viewCid] = view;
+  
+        // index it by model
+        if (view.model){
+          this._indexByModel[view.model.cid] = viewCid;
+        }
+  
+        // index by custom
+        if (customIndex){
+          this._indexByCustom[customIndex] = viewCid;
+        }
+  
+        this._updateLength();
+        return this;
+      },
+  
+      // Find a view by the model that was attached to
+      // it. Uses the model's `cid` to find it.
+      findByModel: function(model){
+        return this.findByModelCid(model.cid);
+      },
+  
+      // Find a view by the `cid` of the model that was attached to
+      // it. Uses the model's `cid` to find the view `cid` and
+      // retrieve the view using it.
+      findByModelCid: function(modelCid){
+        var viewCid = this._indexByModel[modelCid];
+        return this.findByCid(viewCid);
+      },
+  
+      // Find a view by a custom indexer.
+      findByCustom: function(index){
+        var viewCid = this._indexByCustom[index];
+        return this.findByCid(viewCid);
+      },
+  
+      // Find by index. This is not guaranteed to be a
+      // stable index.
+      findByIndex: function(index){
+        return _.values(this._views)[index];
+      },
+  
+      // retrieve a view by its `cid` directly
+      findByCid: function(cid){
+        return this._views[cid];
+      },
+  
+      // Remove a view
+      remove: function(view){
+        var viewCid = view.cid;
+  
+        // delete model index
+        if (view.model){
+          delete this._indexByModel[view.model.cid];
+        }
+  
+        // delete custom index
+        _.any(this._indexByCustom, function(cid, key) {
+          if (cid === viewCid) {
+            delete this._indexByCustom[key];
+            return true;
+          }
+        }, this);
+  
+        // remove the view from the container
+        delete this._views[viewCid];
+  
+        // update the length
+        this._updateLength();
+        return this;
+      },
+  
+      // Call a method on every view in the container,
+      // passing parameters to the call method one at a
+      // time, like `function.call`.
+      call: function(method){
+        this.apply(method, _.tail(arguments));
+      },
+  
+      // Apply a method on every view in the container,
+      // passing parameters to the call method one at a
+      // time, like `function.apply`.
+      apply: function(method, args){
+        _.each(this._views, function(view){
+          if (_.isFunction(view[method])){
+            view[method].apply(view, args || []);
+          }
+        });
+      },
+  
+      // Update the `.length` attribute on this container
+      _updateLength: function(){
+        this.length = _.size(this._views);
+      }
+    });
+  
+    // Borrowing this code from Backbone.Collection:
+    // http://backbonejs.org/docs/backbone.html#section-106
+    //
+    // Mix in methods from Underscore, for iteration, and other
+    // collection related features.
+    var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter',
+      'select', 'reject', 'every', 'all', 'some', 'any', 'include',
+      'contains', 'invoke', 'toArray', 'first', 'initial', 'rest',
+      'last', 'without', 'isEmpty', 'pluck', 'reduce'];
+  
+    _.each(methods, function(method) {
+      Container.prototype[method] = function() {
+        var views = _.values(this._views);
+        var args = [views].concat(_.toArray(arguments));
+        return _[method].apply(_, args);
+      };
+    });
+  
+    // return the public API
+    return Container;
+  })(Backbone, _);
+  
+
+  Backbone.ChildViewContainer.VERSION = '0.1.11';
+
+  Backbone.ChildViewContainer.noConflict = function () {
+    Backbone.ChildViewContainer = previousChildViewContainer;
+    return this;
+  };
+
+  return Backbone.ChildViewContainer;
+
+}));
+
+},{"backbone":"backbone","underscore":"underscore"}],16:[function(require,module,exports){
 /**
  * Backbone localStorage Adapter
  * Version 1.1.16
@@ -652,199 +874,7 @@ Backbone.sync = function(method, model, options) {
 return Backbone.LocalStorage;
 }));
 
-},{"backbone":"backbone"}],16:[function(require,module,exports){
-// Backbone.BabySitter
-// -------------------
-// v0.1.11
-//
-// Copyright (c)2016 Derick Bailey, Muted Solutions, LLC.
-// Distributed under MIT license
-//
-// http://github.com/marionettejs/backbone.babysitter
-
-(function(root, factory) {
-
-  if (typeof define === 'function' && define.amd) {
-    define(['backbone', 'underscore'], function(Backbone, _) {
-      return factory(Backbone, _);
-    });
-  } else if (typeof exports !== 'undefined') {
-    var Backbone = require('backbone');
-    var _ = require('underscore');
-    module.exports = factory(Backbone, _);
-  } else {
-    factory(root.Backbone, root._);
-  }
-
-}(this, function(Backbone, _) {
-  'use strict';
-
-  var previousChildViewContainer = Backbone.ChildViewContainer;
-
-  // BabySitter.ChildViewContainer
-  // -----------------------------
-  //
-  // Provide a container to store, retrieve and
-  // shut down child views.
-  
-  Backbone.ChildViewContainer = (function (Backbone, _) {
-  
-    // Container Constructor
-    // ---------------------
-  
-    var Container = function(views){
-      this._views = {};
-      this._indexByModel = {};
-      this._indexByCustom = {};
-      this._updateLength();
-  
-      _.each(views, this.add, this);
-    };
-  
-    // Container Methods
-    // -----------------
-  
-    _.extend(Container.prototype, {
-  
-      // Add a view to this container. Stores the view
-      // by `cid` and makes it searchable by the model
-      // cid (and model itself). Optionally specify
-      // a custom key to store an retrieve the view.
-      add: function(view, customIndex){
-        var viewCid = view.cid;
-  
-        // store the view
-        this._views[viewCid] = view;
-  
-        // index it by model
-        if (view.model){
-          this._indexByModel[view.model.cid] = viewCid;
-        }
-  
-        // index by custom
-        if (customIndex){
-          this._indexByCustom[customIndex] = viewCid;
-        }
-  
-        this._updateLength();
-        return this;
-      },
-  
-      // Find a view by the model that was attached to
-      // it. Uses the model's `cid` to find it.
-      findByModel: function(model){
-        return this.findByModelCid(model.cid);
-      },
-  
-      // Find a view by the `cid` of the model that was attached to
-      // it. Uses the model's `cid` to find the view `cid` and
-      // retrieve the view using it.
-      findByModelCid: function(modelCid){
-        var viewCid = this._indexByModel[modelCid];
-        return this.findByCid(viewCid);
-      },
-  
-      // Find a view by a custom indexer.
-      findByCustom: function(index){
-        var viewCid = this._indexByCustom[index];
-        return this.findByCid(viewCid);
-      },
-  
-      // Find by index. This is not guaranteed to be a
-      // stable index.
-      findByIndex: function(index){
-        return _.values(this._views)[index];
-      },
-  
-      // retrieve a view by its `cid` directly
-      findByCid: function(cid){
-        return this._views[cid];
-      },
-  
-      // Remove a view
-      remove: function(view){
-        var viewCid = view.cid;
-  
-        // delete model index
-        if (view.model){
-          delete this._indexByModel[view.model.cid];
-        }
-  
-        // delete custom index
-        _.any(this._indexByCustom, function(cid, key) {
-          if (cid === viewCid) {
-            delete this._indexByCustom[key];
-            return true;
-          }
-        }, this);
-  
-        // remove the view from the container
-        delete this._views[viewCid];
-  
-        // update the length
-        this._updateLength();
-        return this;
-      },
-  
-      // Call a method on every view in the container,
-      // passing parameters to the call method one at a
-      // time, like `function.call`.
-      call: function(method){
-        this.apply(method, _.tail(arguments));
-      },
-  
-      // Apply a method on every view in the container,
-      // passing parameters to the call method one at a
-      // time, like `function.apply`.
-      apply: function(method, args){
-        _.each(this._views, function(view){
-          if (_.isFunction(view[method])){
-            view[method].apply(view, args || []);
-          }
-        });
-      },
-  
-      // Update the `.length` attribute on this container
-      _updateLength: function(){
-        this.length = _.size(this._views);
-      }
-    });
-  
-    // Borrowing this code from Backbone.Collection:
-    // http://backbonejs.org/docs/backbone.html#section-106
-    //
-    // Mix in methods from Underscore, for iteration, and other
-    // collection related features.
-    var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter',
-      'select', 'reject', 'every', 'all', 'some', 'any', 'include',
-      'contains', 'invoke', 'toArray', 'first', 'initial', 'rest',
-      'last', 'without', 'isEmpty', 'pluck', 'reduce'];
-  
-    _.each(methods, function(method) {
-      Container.prototype[method] = function() {
-        var views = _.values(this._views);
-        var args = [views].concat(_.toArray(arguments));
-        return _[method].apply(_, args);
-      };
-    });
-  
-    // return the public API
-    return Container;
-  })(Backbone, _);
-  
-
-  Backbone.ChildViewContainer.VERSION = '0.1.11';
-
-  Backbone.ChildViewContainer.noConflict = function () {
-    Backbone.ChildViewContainer = previousChildViewContainer;
-    return this;
-  };
-
-  return Backbone.ChildViewContainer;
-
-}));
-
-},{"backbone":"backbone","underscore":"underscore"}],17:[function(require,module,exports){
+},{"backbone":"backbone"}],17:[function(require,module,exports){
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
 // v2.4.5
@@ -4355,7 +4385,7 @@ return Backbone.LocalStorage;
   return Marionette;
 }));
 
-},{"backbone":"backbone","backbone.babysitter":16,"backbone.wreqr":19,"underscore":"underscore"}],18:[function(require,module,exports){
+},{"backbone":"backbone","backbone.babysitter":15,"backbone.wreqr":19,"underscore":"underscore"}],18:[function(require,module,exports){
 // Backbone.Validation v0.7.1
 //
 // Copyright (c) 2011-2012 Thomas Pedersen

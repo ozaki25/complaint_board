@@ -1,22 +1,29 @@
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var CommentView = require('./CommentView');
 
-module.exports = Marionette.CompositeView.extend({
+module.exports = Backbone.Marionette.CompositeView.extend({
     className: 'panel panel-primary',
     childView: CommentView,
     childViewContainer: '#comments',
     template: '#comments_view',
-    events: {
-        'click #previous-category': 'onClickPreviousButton',
-        'click #next-category': 'onClickNextButton'
-    },
     ui: {
         'previous': '#previous-category',
         'next': '#next-category'
     },
+    events: {
+        'click @ui.previous': 'onClickPreviousButton',
+        'click @ui.next': 'onClickNextButton'
+    },
     initialize: function(options) {
         this.first = options.first;
         this.last = options.last;
+        this.category = options.category;
+    },
+    templateHelpers: function() {
+        return {
+            categoryName: this.category.get('name')
+        };
     },
     onRender: function() {
         if(this.first) this.ui.previous.closest('li').addClass('disabled');

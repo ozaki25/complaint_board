@@ -1,11 +1,11 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
+Backbone.LocalStorage = require('backbone.localstorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Category,
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
+    localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
     initialize: function() {
         this.fetch().done(function() {
             if(!this.length) this.addDefault();

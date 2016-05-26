@@ -1,10 +1,10 @@
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var CategoryView = require('./CategoryView');
 
-module.exports = Marionette.CompositeView.extend({
+module.exports = Backbone.Marionette.CompositeView.extend({
     className: 'panel panel-success',
     childView: CategoryView,
     childViewContainer: '#categories',
     template: '#categories_view'
 });
-

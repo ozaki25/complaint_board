@@ -1,6 +1,7 @@
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     tagName: 'ul',
     template: '#comment_view',
     events: {

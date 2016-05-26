@@ -4,7 +4,6 @@
   <head>
     <title>ComplaintBoard</title>
     <link rel="stylesheet"  media="screen" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet"  media="screen" href="./styles/main.css">
     <meta charset="UTF-8">
   </head>
   <body>
@@ -28,9 +27,9 @@
 
     <script id="main_view" type="text/template">
       <div class="row">
-        <div id="new_comment" class="col-md-12">フォーム</div>
-        <div id="categories" class="col-md-3">カテゴリ</div>
-        <div id="comments" class="col-md-9">コメント</div>
+        <div id="new_comment" class="col-md-12"></div>
+        <div id="categories" class="col-md-3"></div>
+        <div id="comments" class="col-md-9"></div>
       </div>
     </script>
 
@@ -65,7 +64,7 @@
     </script>
 
     <script id="comments_view" type="text/template">
-      <div class="panel-heading">「<%- name %>」のコメント一覧</div>
+      <div class="panel-heading">「<%= categoryName %>」のコメント一覧</div>
       <div id="comments" class="panel-body"></div>
       <div class="panel-footer">
         <nav>

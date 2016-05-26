@@ -1,10 +1,10 @@
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
+Backbone.LocalStorage = require('backbone.localstorage');
 var Comment = require('../models/Comment');
 
 module.exports = Backbone.Collection.extend({
     mdoel: Comment,
-    localStorage: new LocalStorage('ComplaintBoard.comments'),
+    localStorage: new Backbone.LocalStorage('ComplaintBoard.comments'),
     withCategory: function(category) {
         return this.where({category: category});
     }

@@ -1,7 +1,7 @@
 var $ = jQuery = require('jquery');
-var Bootstrap = require('bootstrap');
+require('bootstrap');
 var Backbone = require('backbone');
-var Marionette = require('backbone.marionette');
+Backbone.Marionette = require('backbone.marionette');
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
@@ -10,10 +10,11 @@ var CategoriesView = require('./views/categories/CategoriesView');
 
 var comments = new Comments();
 var categories = new Categories();
-var appRouter = Marionette.AppRouter.extend({
+
+var appRouter = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
-        ""                    : "main",
-        "categories"          : "categories"
+        "": "main",
+        "categories": "categories"
     },
     initialize: function() {
         app.header.show(new HeaderView());
@@ -21,16 +22,18 @@ var appRouter = Marionette.AppRouter.extend({
     controller: {
         main: function() {
             comments.fetch().done(function() {
-                app.main.show(new MainView({collection: comments, categoryList: categories}));
+                var mainView = new MainView({collection: comments, categoryList: categories});
+                app.main.show(mainView);
             });
         },
         categories: function() {
-            app.main.show(new CategoriesView({collection: categories}));
+            var categoriesView = new CategoriesView({collection: categories});
+            app.main.show(categoriesView);
         }
     }
 });
 
-var app = new Marionette.Application({
+var app = new Backbone.Marionette.Application({
     regions: {
         header: '#header',
         main: '#main'

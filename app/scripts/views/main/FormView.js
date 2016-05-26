@@ -1,34 +1,48 @@
 var $ = require('jquery');
 var _ = require('underscore');
-var Validation = require('backbone.validation');
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
+Backbone.Validation = require('backbone.validation');
 var Comment = require('../../models/Comment');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Backbone.Marionette.ItemView.extend({
     template: '#form_view',
     ui: {
-        selectCategory:'select.category',
-        inputContent:'input.content',
-        inputs:'input'
+        selectCategory: 'select.category',
+        inputContent:   'input.content',
+        inputs:         'input',
+        createBtn:      '.create-comment-btn'
     },
     events: {
-        'click .create-comment-btn': 'onClickCreate'
+        'click @ui.createBtn': 'onClickCreate'
     },
     initialize: function(options) {
         this.categories = options.categories;
     },
-    templateHelpers: function () {
+    templateHelpers: function() {
         return {
             categoryList: function() {
                 return _(this.categories.models).map(function(category) {
-                    return '<option value="' + category.get('name') + '">' + category.get('name') + '</option>';
+                    var categoryName = category.get('name');
+                    return '<option value="' + categoryName + '">' + categoryName + '</option>';
                 }).join('');
             }.bind(this)
         }
     },
     onClickCreate: function() {
         this.model = new Comment();
-        Validation.bind(this, {
+        this.bindBackboneValidation();
+
+        var category = this.ui.selectCategory.children(':checked').val();
+        var content = this.ui.inputContent.val().trim();
+        this.model.set({category: category, content: content});
+        if(this.model.isValid(true)) {
+            this.collection.create(this.model);
+            this.ui.inputs.val('');
+        }
+    },
+    bindBackboneValidation: function() {
+        Backbone.Validation.bind(this, {
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
@@ -43,14 +57,5 @@ module.exports = Marionette.ItemView.extend({
                 target.text(error);
             }
         });
-
-        var category = this.ui.selectCategory.children(':checked').val();
-        var content = this.ui.inputContent.val().trim();
-        this.model.set({category: category, content: content});
-        if(this.model.isValid(true)) {
-            this.model.save();
-            this.collection.add(this.model);
-            this.ui.inputs.val('');
-        }
     }
 });

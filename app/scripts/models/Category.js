@@ -1,13 +1,15 @@
+var _ = require('underscore');
 var Backbone = require('backbone');
-var LocalStorage = require('backbone.LocalStorage');
 
 module.exports = Backbone.Model.extend({
-    localStorage: new LocalStorage('ComplaintBoard.categories'),
     validation: {
         name: {
             required: true,
             msg: '必須項目です。'
         }
+    },
+    getPosition: function() {
+        console.log('getPosition');
+        return _(this.collection.models).indexOf(this);
     }
-
 });

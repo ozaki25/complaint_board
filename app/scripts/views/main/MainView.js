@@ -1,12 +1,13 @@
 var _ = require('underscore');
-var Marionette = require('backbone.marionette');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
 var Categories = require('../../collections/Categories');
 var Comments = require('../../collections/Comments');
 var FormView = require('./FormView');
 var CategoriesView = require('./CategoriesView');
 var CommentsView = require('./CommentsView');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = Backbone.Marionette.LayoutView.extend({
     className: 'container',
     template: '#main_view',
     regions: {
@@ -33,37 +34,40 @@ module.exports = Marionette.LayoutView.extend({
         this.categories.show(categoriesView);
         this.showComments(this.categoryList.models[0], true, false);
     },
-    addCommentToCurrentView: function(model) {
+    addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        var currentCategory = currentView.model.get('name');
-        var createdCategory = model.get('category');
-        if(createdCategory === currentCategory) currentView.collection.add(model);
+        var currentCategory = currentView.category.get('name');
+        var createdCategory = comment.get('category');
+        if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
-    showSelectCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showSelectCategory: function(categoryView) {
+        //var currentPosition = categoryView.model.getPosition();
+        var currentPosition = _(categoryView.model.collection.models).indexOf(categoryView.model);
         var first = currentPosition === 0;
         var last = currentPosition === this.categoryList.length - 1;
-        this.showComments(view.model, first, last);
+        this.showComments(categoryView.model, first, last);
     },
-    showPreviousCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showPreviousCategory: function(commentView) {
+        //var currentPosition = commentView.category.getPosition();
+        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
         var previous = this.categoryList.models[currentPosition - 1];
         if(previous) {
-            var isFirst = currentPosition === 1;
-            this.showComments(previous, isFirst, false);
+            var first = currentPosition === 1;
+            this.showComments(previous, first, false);
         }
     },
-    showNextCategory: function(view) {
-        var currentPosition = _(this.categoryList.models).indexOf(view.model);
+    showNextCategory: function(commentView) {
+        //var currentPosition = commentView.category.getPosition();
+        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
         var next = this.categoryList.models[currentPosition + 1];
         if(next) {
-            var isLast = currentPosition + 2 === this.categoryList.length;
-            this.showComments(next, false, isLast)
+            var last = currentPosition + 2 === this.categoryList.length;
+            this.showComments(next, false, last)
         }
     },
     showComments: function(category, first, last) {
         var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, model: category, first: first, last: last});
+        var commentsView = new CommentsView({collection: commentsWithCategory, category: category, first: first, last: last});
         this.comments.show(commentsView);
     }
 });
