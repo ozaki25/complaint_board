@@ -5,7 +5,7 @@ Backbone.LocalStorage = require('backbone.localstorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
-    mdoel: Category,
+    model: Category,
     localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
     initialize: function() {
         this.fetch().done(function() {
@@ -26,7 +26,7 @@ Backbone.LocalStorage = require('backbone.localstorage');
 var Comment = require('../models/Comment');
 
 module.exports = Backbone.Collection.extend({
-    mdoel: Comment,
+    model: Comment,
     localStorage: new Backbone.LocalStorage('ComplaintBoard.comments'),
     withCategory: function(category) {
         return this.where({category: category});
@@ -94,7 +94,6 @@ module.exports = Backbone.Model.extend({
         }
     },
     getPosition: function() {
-        console.log('getPosition');
         return _(this.collection.models).indexOf(this);
     }
 });
@@ -390,15 +389,13 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
     showSelectCategory: function(categoryView) {
-        //var currentPosition = categoryView.model.getPosition();
-        var currentPosition = _(categoryView.model.collection.models).indexOf(categoryView.model);
+        var currentPosition = categoryView.model.getPosition();
         var first = currentPosition === 0;
         var last = currentPosition === this.categoryList.length - 1;
         this.showComments(categoryView.model, first, last);
     },
     showPreviousCategory: function(commentView) {
-        //var currentPosition = commentView.category.getPosition();
-        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
+        var currentPosition = commentView.category.getPosition();
         var previous = this.categoryList.models[currentPosition - 1];
         if(previous) {
             var first = currentPosition === 1;
@@ -406,8 +403,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         }
     },
     showNextCategory: function(commentView) {
-        //var currentPosition = commentView.category.getPosition();
-        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
+        var currentPosition = commentView.category.getPosition();
         var next = this.categoryList.models[currentPosition + 1];
         if(next) {
             var last = currentPosition + 2 === this.categoryList.length;
@@ -877,7 +873,7 @@ return Backbone.LocalStorage;
 },{"backbone":"backbone"}],17:[function(require,module,exports){
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
-// v2.4.5
+// v2.4.6
 //
 // Copyright (c)2016 Derick Bailey, Muted Solutions, LLC.
 // Distributed under MIT license
@@ -908,7 +904,7 @@ return Backbone.LocalStorage;
 
   var Marionette = Backbone.Marionette = {};
 
-  Marionette.VERSION = '2.4.5';
+  Marionette.VERSION = '2.4.6';
 
   Marionette.noConflict = function() {
     root.Marionette = previousMarionette;
@@ -9731,7 +9727,7 @@ require('../../js/affix.js')
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"jquery":"jquery","underscore":"underscore"}],"jquery":[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.2.3
+ * jQuery JavaScript Library v2.2.4
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -9741,7 +9737,7 @@ require('../../js/affix.js')
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-04-05T19:26Z
+ * Date: 2016-05-20T17:23Z
  */
 
 (function( global, factory ) {
@@ -9797,7 +9793,7 @@ var support = {};
 
 
 var
-	version = "2.2.3",
+	version = "2.2.4",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -14738,13 +14734,14 @@ jQuery.Event.prototype = {
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
+	isSimulated: false,
 
 	preventDefault: function() {
 		var e = this.originalEvent;
 
 		this.isDefaultPrevented = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.preventDefault();
 		}
 	},
@@ -14753,7 +14750,7 @@ jQuery.Event.prototype = {
 
 		this.isPropagationStopped = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.stopPropagation();
 		}
 	},
@@ -14762,7 +14759,7 @@ jQuery.Event.prototype = {
 
 		this.isImmediatePropagationStopped = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.stopImmediatePropagation();
 		}
 
@@ -15692,19 +15689,6 @@ function getWidthOrHeight( elem, name, extra ) {
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
 		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
-
-	// Support: IE11 only
-	// In IE 11 fullscreen elements inside of an iframe have
-	// 100x too small dimensions (gh-1764).
-	if ( document.msFullscreenElement && window.top !== window ) {
-
-		// Support: IE11 only
-		// Running getBoundingClientRect on a disconnected node
-		// in IE throws an error.
-		if ( elem.getClientRects().length ) {
-			val = Math.round( elem.getBoundingClientRect()[ name ] * 100 );
-		}
-	}
 
 	// Some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -17596,6 +17580,7 @@ jQuery.extend( jQuery.event, {
 	},
 
 	// Piggyback on a donor event to simulate a different one
+	// Used only for `focus(in | out)` events
 	simulate: function( type, elem, event ) {
 		var e = jQuery.extend(
 			new jQuery.Event(),
@@ -17603,27 +17588,10 @@ jQuery.extend( jQuery.event, {
 			{
 				type: type,
 				isSimulated: true
-
-				// Previously, `originalEvent: {}` was set here, so stopPropagation call
-				// would not be triggered on donor event, since in our own
-				// jQuery.event.stopPropagation function we had a check for existence of
-				// originalEvent.stopPropagation method, so, consequently it would be a noop.
-				//
-				// But now, this "simulate" function is used only for events
-				// for which stopPropagation() is noop, so there is no need for that anymore.
-				//
-				// For the 1.x branch though, guard for "click" and "submit"
-				// events is still used, but was moved to jQuery.event.stopPropagation function
-				// because `originalEvent` should point to the original event for the constancy
-				// with other events and for more focused logic
 			}
 		);
 
 		jQuery.event.trigger( e, null, elem );
-
-		if ( e.isDefaultPrevented() ) {
-			event.preventDefault();
-		}
 	}
 
 } );

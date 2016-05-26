@@ -4,7 +4,7 @@ Backbone.LocalStorage = require('backbone.localstorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
-    mdoel: Category,
+    model: Category,
     localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
     initialize: function() {
         this.fetch().done(function() {

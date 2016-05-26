@@ -9,7 +9,6 @@ module.exports = Backbone.Model.extend({
         }
     },
     getPosition: function() {
-        console.log('getPosition');
         return _(this.collection.models).indexOf(this);
     }
 });

@@ -41,15 +41,13 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(createdCategory === currentCategory) currentView.collection.add(comment);
     },
     showSelectCategory: function(categoryView) {
-        //var currentPosition = categoryView.model.getPosition();
-        var currentPosition = _(categoryView.model.collection.models).indexOf(categoryView.model);
+        var currentPosition = categoryView.model.getPosition();
         var first = currentPosition === 0;
         var last = currentPosition === this.categoryList.length - 1;
         this.showComments(categoryView.model, first, last);
     },
     showPreviousCategory: function(commentView) {
-        //var currentPosition = commentView.category.getPosition();
-        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
+        var currentPosition = commentView.category.getPosition();
         var previous = this.categoryList.models[currentPosition - 1];
         if(previous) {
             var first = currentPosition === 1;
@@ -57,8 +55,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         }
     },
     showNextCategory: function(commentView) {
-        //var currentPosition = commentView.category.getPosition();
-        var currentPosition = _(commentView.category.collection.models).indexOf(commentView.category);
+        var currentPosition = commentView.category.getPosition();
         var next = this.categoryList.models[currentPosition + 1];
         if(next) {
             var last = currentPosition + 2 === this.categoryList.length;
