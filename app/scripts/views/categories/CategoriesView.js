@@ -6,10 +6,9 @@ var Category = require('../../models/Category');
 var CategoryView = require('./CategoryView');
 
 module.exports = Backbone.Marionette.CompositeView.extend({
-    className: 'container',
     childView: CategoryView,
     childViewContainer: '#show_categories',
-    template: '#categories_main_view',
+    template: '#category_panel_view',
     ui: {
         inputName: 'input.category-name',
         createBtn: '.create-category-btn'

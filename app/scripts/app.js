@@ -20,7 +20,7 @@ module.exports = Backbone.Collection.extend({
     }
 });
 
-},{"../models/Category":4,"backbone":"backbone","backbone.localstorage":17,"underscore":"underscore"}],2:[function(require,module,exports){
+},{"../models/Category":4,"backbone":"backbone","backbone.localstorage":18,"underscore":"underscore"}],2:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.LocalStorage = require('backbone.localstorage');
 var Comment = require('../models/Comment');
@@ -36,7 +36,7 @@ module.exports = Backbone.Collection.extend({
     }
 });
 
-},{"../models/Comment":5,"backbone":"backbone","backbone.localstorage":17}],3:[function(require,module,exports){
+},{"../models/Comment":5,"backbone":"backbone","backbone.localstorage":18}],3:[function(require,module,exports){
 var $ = jQuery = require('jquery');
 require('bootstrap');
 var Backbone = require('backbone');
@@ -46,7 +46,7 @@ var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
 var MainView = require('./views/main/MainView');
-var CategoriesView = require('./views/categories/CategoriesView');
+var CategoryMainView = require('./views/categories/MainView');
 
 var comments = new Comments();
 var categories = new Categories();
@@ -65,8 +65,8 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
             app.main.show(mainView);
         },
         categories: function() {
-            var categoriesView = new CategoriesView({collection: categories});
-            app.main.show(categoriesView);
+            var categoryMainView = new CategoryMainView({collection: categories});
+            app.main.show(categoryMainView);
         }
     }
 });
@@ -84,7 +84,7 @@ var app = new Backbone.Marionette.Application({
 
 app.start();
 
-},{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":7,"./views/categories/CategoriesView":8,"./views/main/MainView":15,"backbone":"backbone","backbone.marionette":18,"bootstrap":21,"jquery":"jquery"}],4:[function(require,module,exports){
+},{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":7,"./views/categories/MainView":10,"./views/main/MainView":16,"backbone":"backbone","backbone.marionette":19,"bootstrap":22,"jquery":"jquery"}],4:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
 
@@ -156,7 +156,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
     }
 });
 
-},{"backbone":"backbone","backbone.marionette":18}],7:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":19}],7:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 
@@ -164,7 +164,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
     template: '#header_view'
 });
 
-},{"backbone":"backbone","backbone.marionette":18}],8:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":19}],8:[function(require,module,exports){
 var $ = require('jquery');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
@@ -173,10 +173,9 @@ var Category = require('../../models/Category');
 var CategoryView = require('./CategoryView');
 
 module.exports = Backbone.Marionette.CompositeView.extend({
-    className: 'container',
     childView: CategoryView,
     childViewContainer: '#show_categories',
-    template: '#categories_main_view',
+    template: '#category_panel_view',
     ui: {
         inputName: 'input.category-name',
         createBtn: '.create-category-btn'
@@ -231,7 +230,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
 });
 
 
-},{"../../models/Category":4,"./CategoryView":9,"backbone":"backbone","backbone.marionette":18,"backbone.validation":19,"jquery":"jquery"}],9:[function(require,module,exports){
+},{"../../models/Category":4,"./CategoryView":9,"backbone":"backbone","backbone.marionette":19,"backbone.validation":20,"jquery":"jquery"}],9:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 
@@ -247,7 +246,43 @@ module.exports = Backbone.Marionette.ItemView.extend({
     }
 });
 
-},{"backbone":"backbone","backbone.marionette":18}],10:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":19}],10:[function(require,module,exports){
+var _ = require('underscore');
+var Backbone = require('backbone');
+Backbone.Marionette = require('backbone.marionette');
+var CategoriesView = require('./CategoriesView');
+var AlertView = require('../AlertView');
+
+module.exports = Backbone.Marionette.LayoutView.extend({
+    className: 'container',
+    template: '#category_main_view',
+    regions: {
+        alert: '#alert',
+        categoryPanel: '#category_panel'
+    },
+    collectionEvents: {
+        'add': 'addCategory',
+        'remove': 'removeCategory'
+    },
+    onRender: function() {
+        var categoriesView = new CategoriesView({collection: this.collection});
+        this.categoryPanel.show(categoriesView);
+    },
+    addCategory: function() {
+        var alertView = new AlertView({type: 'success', message: 'カテゴリを登録しました。'});
+        this.showAlert(alertView);
+    },
+    removeCategory: function() {
+        var alertView = new AlertView({type: 'success', message: 'カテゴリを削除しました。'});
+        this.showAlert(alertView);
+    },
+    showAlert: function(view) {
+        this.alert.show(view);
+    }
+});
+
+
+},{"../AlertView":6,"./CategoriesView":8,"backbone":"backbone","backbone.marionette":19,"underscore":"underscore"}],11:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 var CategoryView = require('./CategoryView');
@@ -259,7 +294,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
     template: '#categories_view'
 });
 
-},{"./CategoryView":11,"backbone":"backbone","backbone.marionette":18}],11:[function(require,module,exports){
+},{"./CategoryView":12,"backbone":"backbone","backbone.marionette":19}],12:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 
@@ -280,7 +315,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
 });
 
 
-},{"backbone":"backbone","backbone.marionette":18}],12:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":19}],13:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 
@@ -297,7 +332,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
 });
 
 
-},{"backbone":"backbone","backbone.marionette":18}],13:[function(require,module,exports){
+},{"backbone":"backbone","backbone.marionette":19}],14:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
 var CommentView = require('./CommentView');
@@ -338,7 +373,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
 });
 
 
-},{"./CommentView":12,"backbone":"backbone","backbone.marionette":18}],14:[function(require,module,exports){
+},{"./CommentView":13,"backbone":"backbone","backbone.marionette":19}],15:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
@@ -414,7 +449,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
     }
 });
 
-},{"../../models/Comment":5,"backbone":"backbone","backbone.marionette":18,"backbone.validation":19,"jquery":"jquery","underscore":"underscore"}],15:[function(require,module,exports){
+},{"../../models/Comment":5,"backbone":"backbone","backbone.marionette":19,"backbone.validation":20,"jquery":"jquery","underscore":"underscore"}],16:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
@@ -491,7 +526,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 });
 
 
-},{"../../collections/Categories":1,"../../collections/Comments":2,"../AlertView":6,"./CategoriesView":10,"./CommentsView":13,"./FormView":14,"backbone":"backbone","backbone.marionette":18,"underscore":"underscore"}],16:[function(require,module,exports){
+},{"../../collections/Categories":1,"../../collections/Comments":2,"../AlertView":6,"./CategoriesView":11,"./CommentsView":14,"./FormView":15,"backbone":"backbone","backbone.marionette":19,"underscore":"underscore"}],17:[function(require,module,exports){
 // Backbone.BabySitter
 // -------------------
 // v0.1.11
@@ -683,7 +718,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
 }));
 
-},{"backbone":"backbone","underscore":"underscore"}],17:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],18:[function(require,module,exports){
 /**
  * Backbone localStorage Adapter
  * Version 1.1.16
@@ -943,7 +978,7 @@ Backbone.sync = function(method, model, options) {
 return Backbone.LocalStorage;
 }));
 
-},{"backbone":"backbone"}],18:[function(require,module,exports){
+},{"backbone":"backbone"}],19:[function(require,module,exports){
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
 // v2.4.6
@@ -4454,7 +4489,7 @@ return Backbone.LocalStorage;
   return Marionette;
 }));
 
-},{"backbone":"backbone","backbone.babysitter":16,"backbone.wreqr":20,"underscore":"underscore"}],19:[function(require,module,exports){
+},{"backbone":"backbone","backbone.babysitter":17,"backbone.wreqr":21,"underscore":"underscore"}],20:[function(require,module,exports){
 // Backbone.Validation v0.7.1
 //
 // Copyright (c) 2011-2012 Thomas Pedersen
@@ -5065,7 +5100,7 @@ return Backbone.LocalStorage;
   
   return Backbone.Validation;
 }));
-},{"backbone":"backbone","underscore":"underscore"}],20:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],21:[function(require,module,exports){
 // Backbone.Wreqr (Backbone.Marionette)
 // ----------------------------------
 // v1.3.6
@@ -5502,7 +5537,7 @@ return Backbone.LocalStorage;
 
 }));
 
-},{"backbone":"backbone","underscore":"underscore"}],21:[function(require,module,exports){
+},{"backbone":"backbone","underscore":"underscore"}],22:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -5516,7 +5551,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":22,"../../js/alert.js":23,"../../js/button.js":24,"../../js/carousel.js":25,"../../js/collapse.js":26,"../../js/dropdown.js":27,"../../js/modal.js":28,"../../js/popover.js":29,"../../js/scrollspy.js":30,"../../js/tab.js":31,"../../js/tooltip.js":32,"../../js/transition.js":33}],22:[function(require,module,exports){
+},{"../../js/affix.js":23,"../../js/alert.js":24,"../../js/button.js":25,"../../js/carousel.js":26,"../../js/collapse.js":27,"../../js/dropdown.js":28,"../../js/modal.js":29,"../../js/popover.js":30,"../../js/scrollspy.js":31,"../../js/tab.js":32,"../../js/tooltip.js":33,"../../js/transition.js":34}],23:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.6
  * http://getbootstrap.com/javascript/#affix
@@ -5680,7 +5715,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.6
  * http://getbootstrap.com/javascript/#alerts
@@ -5776,7 +5811,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.6
  * http://getbootstrap.com/javascript/#buttons
@@ -5898,7 +5933,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.6
  * http://getbootstrap.com/javascript/#carousel
@@ -6137,7 +6172,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.6
  * http://getbootstrap.com/javascript/#collapse
@@ -6350,7 +6385,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.6
  * http://getbootstrap.com/javascript/#dropdowns
@@ -6517,7 +6552,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.6
  * http://getbootstrap.com/javascript/#modals
@@ -6856,7 +6891,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.6
  * http://getbootstrap.com/javascript/#popovers
@@ -6966,7 +7001,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.6
  * http://getbootstrap.com/javascript/#scrollspy
@@ -7140,7 +7175,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.6
  * http://getbootstrap.com/javascript/#tabs
@@ -7297,7 +7332,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.6
  * http://getbootstrap.com/javascript/#tooltip
@@ -7813,7 +7848,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions

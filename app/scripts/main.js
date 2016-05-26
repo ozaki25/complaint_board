@@ -7,7 +7,7 @@ var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
 var MainView = require('./views/main/MainView');
-var CategoriesView = require('./views/categories/CategoriesView');
+var CategoryMainView = require('./views/categories/MainView');
 
 var comments = new Comments();
 var categories = new Categories();
@@ -26,8 +26,8 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
             app.main.show(mainView);
         },
         categories: function() {
-            var categoriesView = new CategoriesView({collection: categories});
-            app.main.show(categoriesView);
+            var categoryMainView = new CategoryMainView({collection: categories});
+            app.main.show(categoryMainView);
         }
     }
 });
