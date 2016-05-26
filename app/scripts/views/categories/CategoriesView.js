@@ -11,12 +11,26 @@ module.exports = Backbone.Marionette.CompositeView.extend({
     childViewContainer: '#show_categories',
     template: '#categories_main_view',
     ui: {
-        inputName: 'input.category-name'
+        inputName: 'input.category-name',
+        createBtn: '.create-category-btn'
     },
     events: {
-        'click .add-category': 'onClickAddCategory'
+        'keypress': 'preventSubmit',
+        'keypress @ui.createBtn': 'onKeypressCreate',
+        'click @ui.createBtn': 'onClickCreate'
     },
-    onClickAddCategory: function() {
+    preventSubmit: function(e) {
+        var enter = 13;
+        if(e.which === enter) e.preventDefault();
+    },
+    onKeypressCreate: function(e) {
+        var enter = 13;
+        if(e.which === enter) this.createCategory();
+    },
+    onClickCreate: function() {
+        this.createCategory();
+    },
+    createCategory: function() {
         this.model = new Category();
         this.bindBackboneValidation();
 
@@ -46,7 +60,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
                 target.text(error);
             }
         });
-
     }
 });
 

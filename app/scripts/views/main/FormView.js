@@ -14,6 +14,8 @@ module.exports = Backbone.Marionette.ItemView.extend({
         createBtn:      '.create-comment-btn'
     },
     events: {
+        'keypress': 'preventSubmit',
+        'keypress @ui.createBtn': 'onKeypressCreate',
         'click @ui.createBtn': 'onClickCreate'
     },
     initialize: function(options) {
@@ -29,7 +31,18 @@ module.exports = Backbone.Marionette.ItemView.extend({
             }.bind(this)
         }
     },
+    preventSubmit: function(e) {
+        var enter = 13;
+        if(e.which === enter) e.preventDefault();
+    },
+    onKeypressCreate: function(e) {
+        var enter = 13;
+        if(e.which === enter) this.createComment();
+    },
     onClickCreate: function() {
+        this.createComment();
+    },
+    createComment: function() {
         this.model = new Comment();
         this.bindBackboneValidation();
 
