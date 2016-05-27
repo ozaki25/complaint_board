@@ -23,8 +23,10 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     controller: {
         main: function() {
             categories.fetch().done(function() {
-                var mainView = new MainView({collection: comments, categoryList: categories});
-                app.main.show(mainView);
+                comments.fetch().done(function() {
+                    var mainView = new MainView({collection: comments, categoryList: categories});
+                    app.main.show(mainView);
+                });
             });
         },
         categories: function() {

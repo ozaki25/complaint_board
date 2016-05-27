@@ -8,7 +8,7 @@ var Comment = require('../../models/Comment');
 module.exports = Backbone.Marionette.ItemView.extend({
     template: '#form_view',
     ui: {
-        selectCategory: 'select.category',
+        selectCategory: 'select.categoryId',
         inputContent:   'input.content',
         inputs:         'input',
         createBtn:      '.create-comment-btn'
@@ -25,8 +25,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         return {
             categoryList: function() {
                 return _(this.categories.models).map(function(category) {
-                    var categoryName = category.get('name');
-                    return '<option value="' + categoryName + '">' + categoryName + '</option>';
+                    return '<option value="' + category.id + '">' + category.get('name') + '</option>';
                 }).join('');
             }.bind(this)
         }
@@ -46,9 +45,9 @@ module.exports = Backbone.Marionette.ItemView.extend({
         this.model = new Comment();
         this.bindBackboneValidation();
 
-        var category = this.ui.selectCategory.children(':checked').val();
+        var categoryId = this.ui.selectCategory.children(':checked').val();
         var content = this.ui.inputContent.val().trim();
-        this.model.set({category: category, content: content});
+        this.model.set({categoryId: categoryId, content: content});
         if(this.model.isValid(true)) {
             this.collection.create(this.model);
             this.ui.inputs.val('');
