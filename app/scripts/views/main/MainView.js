@@ -64,9 +64,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(next) this.showComments(next)
     },
     showComments: function(category) {
-        var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
-        this.comments.show(commentsView);
+        if(category) {
+            var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
+            var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
+            this.comments.show(commentsView);
+        }
     },
     showAlert: function(view) {
         this.alert.show(view);

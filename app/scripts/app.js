@@ -103,6 +103,10 @@ var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
     validation: {
+        category: {
+            required: true,
+            msg: '必須項目です。'
+        },
         content: {
             required: true,
             msg: '必須項目です。'
@@ -508,9 +512,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         if(next) this.showComments(next)
     },
     showComments: function(category) {
-        var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
-        var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
-        this.comments.show(commentsView);
+        if(category) {
+            var commentsWithCategory = new Comments(this.collection.withCategory(category.get('name')));
+            var commentsView = new CommentsView({collection: commentsWithCategory, category: category});
+            this.comments.show(commentsView);
+        }
     },
     showAlert: function(view) {
         this.alert.show(view);
