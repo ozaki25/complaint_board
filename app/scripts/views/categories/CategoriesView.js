@@ -36,7 +36,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         var name = this.ui.inputName.val().trim();
         this.model.set({name: name});
         if(this.model.isValid(true)) {
-            this.collection.create(this.model);
+            this.collection.create(this.model, {wait: true});
             this.ui.inputName.val('');
         }
     },

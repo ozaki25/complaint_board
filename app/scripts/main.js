@@ -22,16 +22,16 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            console.log("fetch");
-            categories.fetch({dataType: 'jsonp'});
-                console.log(categories);
-            //if(!categories.length) categories.addDefault();
+            categories.fetch().done(function() {
                 var mainView = new MainView({collection: comments, categoryList: categories});
                 app.main.show(mainView);
+            });
         },
         categories: function() {
-            var categoryMainView = new CategoryMainView({collection: categories});
-            app.main.show(categoryMainView);
+            categories.fetch().done(function() {
+                var categoryMainView = new CategoryMainView({collection: categories});
+                app.main.show(categoryMainView);
+            });
         }
     }
 });

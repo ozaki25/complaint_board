@@ -1,22 +1,14 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
-Backbone.LocalStorage = require('backbone.localstorage');
 var Category = require('../models/Category');
 
 module.exports = Backbone.Collection.extend({
     model: Category,
-    url: 'http://localhost:3030/categories',
-    //localStorage: new Backbone.LocalStorage('ComplaintBoard.categories'),
-    addDefault: function() {
-        var categoryList = [ '楽しくない仕事', 'いらいらする仕事', 'つまんない仕事'];
-        _(categoryList).each(function(category) {
-            this.create({name: category});
-        }.bind(this));
-    }
+    url: 'http://localhost:3030/categories'
 });
 
-},{"../models/Category":4,"backbone":"backbone","backbone.localstorage":18,"underscore":"underscore"}],2:[function(require,module,exports){
+},{"../models/Category":4,"backbone":"backbone","underscore":"underscore"}],2:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.LocalStorage = require('backbone.localstorage');
 var Comment = require('../models/Comment');
@@ -57,16 +49,16 @@ var appRouter = Backbone.Marionette.AppRouter.extend({
     },
     controller: {
         main: function() {
-            console.log("fetch");
-            categories.fetch({dataType: 'jsonp'});
-                console.log(categories);
-            //if(!categories.length) categories.addDefault();
+            categories.fetch().done(function() {
                 var mainView = new MainView({collection: comments, categoryList: categories});
                 app.main.show(mainView);
+            });
         },
         categories: function() {
-            var categoryMainView = new CategoryMainView({collection: categories});
-            app.main.show(categoryMainView);
+            categories.fetch().done(function() {
+                var categoryMainView = new CategoryMainView({collection: categories});
+                app.main.show(categoryMainView);
+            });
         }
     }
 });
@@ -203,7 +195,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         var name = this.ui.inputName.val().trim();
         this.model.set({name: name});
         if(this.model.isValid(true)) {
-            this.collection.create(this.model);
+            this.collection.create(this.model, {wait: true});
             this.ui.inputName.val('');
         }
     },
@@ -242,7 +234,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
     },
     onClickDelete: function(e) {
         e.preventDefault();
-        this.model.destroy();
+        this.model.destroy({wait: true});
     }
 });
 
@@ -426,7 +418,6 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var content = this.ui.inputContent.val().trim();
         this.model.set({category: category, content: content});
         if(this.model.isValid(true)) {
-            this.setCSRFToken();
             this.collection.create(this.model);
             this.ui.inputs.val('');
         }
@@ -447,15 +438,6 @@ module.exports = Backbone.Marionette.ItemView.extend({
                 target.text(error);
             }
         });
-    },
-    setCSRFToken: function() {
-        var token = $('meta[name="csrf-token"]').attr('content');
-        console.log('token', token);
-        Backbone.Model.prototype.toJSON = function() {
-            return _(_.clone(this.attributes)).extend({
-                authenticity_token: token
-            });
-        };
     }
 });
 
