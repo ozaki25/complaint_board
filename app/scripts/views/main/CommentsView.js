@@ -36,4 +36,3 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         this.triggerMethod('click:next');
     }
 });
-

@@ -10,12 +10,10 @@ module.exports = Backbone.Marionette.ItemView.extend({
     ui: {
         selectCategory: 'select.categoryId',
         inputContent:   'input.content',
-        inputs:         'input',
         createBtn:      '.create-comment-btn'
     },
     events: {
-        'keypress': 'preventSubmit',
-        'keypress @ui.createBtn': 'onKeypressCreate',
+        'keypress @ui.inputContent': 'preventSubmit',
         'click @ui.createBtn': 'onClickCreate'
     },
     initialize: function(options) {
@@ -34,14 +32,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var enter = 13;
         if(e.which === enter) e.preventDefault();
     },
-    onKeypressCreate: function(e) {
-        var enter = 13;
-        if(e.which === enter) this.createComment();
-    },
     onClickCreate: function() {
-        this.createComment();
-    },
-    createComment: function() {
         this.model = new Comment();
         this.bindBackboneValidation();
 
@@ -49,8 +40,8 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var content = this.ui.inputContent.val().trim();
         this.model.set({categoryId: categoryId, content: content});
         if(this.model.isValid(true)) {
-            this.collection.create(this.model);
-            this.ui.inputs.val('');
+            this.collection.create(this.model,{wait: true});
+            this.ui.inputContent.val('');
         }
     },
     bindBackboneValidation: function() {
@@ -58,15 +49,12 @@ module.exports = Backbone.Marionette.ItemView.extend({
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.removeClass('has-error');
-                group.find('.help-inline').empty();
+                group.removeClass('has-error').find('.help-inline').empty();
             },
             invalid: function(view, attr, error) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.addClass('has-error');
-                var target = group.find('.help-inline');
-                target.text(error);
+                group.addClass('has-error').find('.help-inline').text(error);
             }
         });
     }

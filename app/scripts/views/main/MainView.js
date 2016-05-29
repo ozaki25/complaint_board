@@ -1,7 +1,6 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
-var Categories = require('../../collections/Categories');
 var Comments = require('../../collections/Comments');
 var FormView = require('./FormView');
 var CategoriesView = require('./CategoriesView');
@@ -39,28 +38,21 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        var currentCategory = currentView.category.get('name');
-        var createdCategory = comment.get('category');
-        if(createdCategory === currentCategory) currentView.collection.add(comment);
-
-        var alertView = new AlertView({type: 'success', message: 'コメントを登録しました。'});
-        this.showAlert(alertView);
+        if(currentView.category.isAdded(comment)) currentView.collection.add(comment);
+        this.showAlert('success', 'コメントを登録しました。');
     },
     removeComment: function() {
-        var alertView = new AlertView({type: 'success', message: 'コメントを削除しました。'});
-        this.showAlert(alertView);
+        this.showAlert('success', 'コメントを削除しました。');
     },
     showSelectCategory: function(categoryView) {
         this.showComments(categoryView.model);
     },
     showPreviousCategory: function(commentView) {
-        var currentPosition = commentView.category.getPosition();
-        var previous = this.categoryList.models[currentPosition - 1];
+        var previous = commentView.category.previous();
         if(previous) this.showComments(previous);
     },
     showNextCategory: function(commentView) {
-        var currentPosition = commentView.category.getPosition();
-        var next = this.categoryList.models[currentPosition + 1];
+        var next = commentView.category.next();
         if(next) this.showComments(next)
     },
     showComments: function(category) {
@@ -70,8 +62,9 @@ module.exports = Backbone.Marionette.LayoutView.extend({
             this.comments.show(commentsView);
         }
     },
-    showAlert: function(view) {
-        this.alert.show(view);
+    showAlert: function(type, message) {
+        var alertView = new AlertView({type: type, message: message});
+        this.alert.show(alertView);
     }
 });
 

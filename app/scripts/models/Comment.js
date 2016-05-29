@@ -10,5 +10,12 @@ module.exports = Backbone.Model.extend({
             required: true,
             msg: '必須項目です。'
         }
+    },
+    parse: function(response) {
+        if(!response.categoryId) {
+            response.categoryId = response.category.id;
+            delete response.category;
+        }
+        return response;
     }
 });

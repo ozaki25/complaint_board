@@ -16,4 +16,3 @@ module.exports = Backbone.Marionette.ItemView.extend({
         this.triggerMethod('click:category');
     }
 });
-

@@ -16,7 +16,7 @@ module.exports = Backbone.Collection.extend({
     model: Comment,
     url: 'http://localhost:3030/comments',
     withCategory: function(categoryId) {
-        return this.where({categoryId: categoryId.toString()});
+        return this.where({categoryId: categoryId});
     }
 });
 
@@ -85,7 +85,13 @@ module.exports = Backbone.Model.extend({
             msg: '必須項目です。'
         }
     },
-    getPosition: function() {
+    previous: function() {
+        return this.collection.models[this.currentPosition - 1];
+    },
+    next: function() {
+        return this.collection.models[this.currentPosition + 1];
+    },
+    currentPosition: function() {
         return _(this.collection.models).indexOf(this);
     },
     isFirst: function() {
@@ -93,6 +99,9 @@ module.exports = Backbone.Model.extend({
     },
     isLast: function() {
         return this.id === _(this.collection.models).last().id;
+    },
+    isAdded: function(comment) {
+        return this.id === comment.get('categoryId');
     }
 });
 
@@ -109,6 +118,13 @@ module.exports = Backbone.Model.extend({
             required: true,
             msg: '必須項目です。'
         }
+    },
+    parse: function(response) {
+        if(!response.categoryId) {
+            response.categoryId = response.category.id;
+            delete response.category;
+        }
+        return response;
     }
 });
 
@@ -175,22 +191,14 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         createBtn: '.create-category-btn'
     },
     events: {
-        'keypress': 'preventSubmit',
-        'keypress @ui.createBtn': 'onKeypressCreate',
+        'keypress @ui.inputName': 'preventSubmit',
         'click @ui.createBtn': 'onClickCreate'
     },
     preventSubmit: function(e) {
         var enter = 13;
         if(e.which === enter) e.preventDefault();
     },
-    onKeypressCreate: function(e) {
-        var enter = 13;
-        if(e.which === enter) this.createCategory();
-    },
     onClickCreate: function() {
-        this.createCategory();
-    },
-    createCategory: function() {
         this.model = new Category();
         this.bindBackboneValidation();
 
@@ -206,8 +214,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.removeClass('has-error');
-                group.find('.help-block').remove();
+                group.removeClass('has-error').find('.help-block').remove();
             },
             invalid: function(view, attr, error) {
                 var control = view.$('[name=' + attr + ']');
@@ -216,8 +223,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
                 if(group.find('.help-block').length == 0) {
                     control.after('<p class=\'help-block\'></p>');
                 }
-                var target = group.find('.help-block');
-                target.text(error);
+                group.find('.help-block').text(error);
             }
         });
     }
@@ -308,7 +314,6 @@ module.exports = Backbone.Marionette.ItemView.extend({
     }
 });
 
-
 },{"backbone":"backbone","backbone.marionette":18}],13:[function(require,module,exports){
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
@@ -321,10 +326,9 @@ module.exports = Backbone.Marionette.ItemView.extend({
     },
     onClickDelete: function(e) {
         e.preventDefault();
-        this.model.destroy();
+        this.model.destroy({wait: true});
     }
 });
-
 
 },{"backbone":"backbone","backbone.marionette":18}],14:[function(require,module,exports){
 var Backbone = require('backbone');
@@ -366,7 +370,6 @@ module.exports = Backbone.Marionette.CompositeView.extend({
     }
 });
 
-
 },{"./CommentView":13,"backbone":"backbone","backbone.marionette":18}],15:[function(require,module,exports){
 var $ = require('jquery');
 var _ = require('underscore');
@@ -380,12 +383,10 @@ module.exports = Backbone.Marionette.ItemView.extend({
     ui: {
         selectCategory: 'select.categoryId',
         inputContent:   'input.content',
-        inputs:         'input',
         createBtn:      '.create-comment-btn'
     },
     events: {
-        'keypress': 'preventSubmit',
-        'keypress @ui.createBtn': 'onKeypressCreate',
+        'keypress @ui.inputContent': 'preventSubmit',
         'click @ui.createBtn': 'onClickCreate'
     },
     initialize: function(options) {
@@ -404,14 +405,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var enter = 13;
         if(e.which === enter) e.preventDefault();
     },
-    onKeypressCreate: function(e) {
-        var enter = 13;
-        if(e.which === enter) this.createComment();
-    },
     onClickCreate: function() {
-        this.createComment();
-    },
-    createComment: function() {
         this.model = new Comment();
         this.bindBackboneValidation();
 
@@ -419,8 +413,8 @@ module.exports = Backbone.Marionette.ItemView.extend({
         var content = this.ui.inputContent.val().trim();
         this.model.set({categoryId: categoryId, content: content});
         if(this.model.isValid(true)) {
-            this.collection.create(this.model);
-            this.ui.inputs.val('');
+            this.collection.create(this.model,{wait: true});
+            this.ui.inputContent.val('');
         }
     },
     bindBackboneValidation: function() {
@@ -428,15 +422,12 @@ module.exports = Backbone.Marionette.ItemView.extend({
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.removeClass('has-error');
-                group.find('.help-inline').empty();
+                group.removeClass('has-error').find('.help-inline').empty();
             },
             invalid: function(view, attr, error) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.addClass('has-error');
-                var target = group.find('.help-inline');
-                target.text(error);
+                group.addClass('has-error').find('.help-inline').text(error);
             }
         });
     }
@@ -446,7 +437,6 @@ module.exports = Backbone.Marionette.ItemView.extend({
 var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.Marionette = require('backbone.marionette');
-var Categories = require('../../collections/Categories');
 var Comments = require('../../collections/Comments');
 var FormView = require('./FormView');
 var CategoriesView = require('./CategoriesView');
@@ -484,28 +474,21 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        var currentCategory = currentView.category.get('name');
-        var createdCategory = comment.get('category');
-        if(createdCategory === currentCategory) currentView.collection.add(comment);
-
-        var alertView = new AlertView({type: 'success', message: 'コメントを登録しました。'});
-        this.showAlert(alertView);
+        if(currentView.category.isAdded(comment)) currentView.collection.add(comment);
+        this.showAlert('success', 'コメントを登録しました。');
     },
     removeComment: function() {
-        var alertView = new AlertView({type: 'success', message: 'コメントを削除しました。'});
-        this.showAlert(alertView);
+        this.showAlert('success', 'コメントを削除しました。');
     },
     showSelectCategory: function(categoryView) {
         this.showComments(categoryView.model);
     },
     showPreviousCategory: function(commentView) {
-        var currentPosition = commentView.category.getPosition();
-        var previous = this.categoryList.models[currentPosition - 1];
+        var previous = commentView.category.previous();
         if(previous) this.showComments(previous);
     },
     showNextCategory: function(commentView) {
-        var currentPosition = commentView.category.getPosition();
-        var next = this.categoryList.models[currentPosition + 1];
+        var next = commentView.category.next();
         if(next) this.showComments(next)
     },
     showComments: function(category) {
@@ -515,13 +498,14 @@ module.exports = Backbone.Marionette.LayoutView.extend({
             this.comments.show(commentsView);
         }
     },
-    showAlert: function(view) {
-        this.alert.show(view);
+    showAlert: function(type, message) {
+        var alertView = new AlertView({type: type, message: message});
+        this.alert.show(alertView);
     }
 });
 
 
-},{"../../collections/Categories":1,"../../collections/Comments":2,"../AlertView":6,"./CategoriesView":11,"./CommentsView":14,"./FormView":15,"backbone":"backbone","backbone.marionette":18,"underscore":"underscore"}],17:[function(require,module,exports){
+},{"../../collections/Comments":2,"../AlertView":6,"./CategoriesView":11,"./CommentsView":14,"./FormView":15,"backbone":"backbone","backbone.marionette":18,"underscore":"underscore"}],17:[function(require,module,exports){
 // Backbone.BabySitter
 // -------------------
 // v0.1.11

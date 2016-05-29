@@ -8,7 +8,13 @@ module.exports = Backbone.Model.extend({
             msg: '必須項目です。'
         }
     },
-    getPosition: function() {
+    previous: function() {
+        return this.collection.models[this.currentPosition - 1];
+    },
+    next: function() {
+        return this.collection.models[this.currentPosition + 1];
+    },
+    currentPosition: function() {
         return _(this.collection.models).indexOf(this);
     },
     isFirst: function() {
@@ -16,5 +22,8 @@ module.exports = Backbone.Model.extend({
     },
     isLast: function() {
         return this.id === _(this.collection.models).last().id;
+    },
+    isAdded: function(comment) {
+        return this.id === comment.get('categoryId');
     }
 });

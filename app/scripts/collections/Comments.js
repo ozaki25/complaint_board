@@ -5,6 +5,6 @@ module.exports = Backbone.Collection.extend({
     model: Comment,
     url: 'http://localhost:3030/comments',
     withCategory: function(categoryId) {
-        return this.where({categoryId: categoryId.toString()});
+        return this.where({categoryId: categoryId});
     }
 });

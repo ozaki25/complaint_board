@@ -14,22 +14,14 @@ module.exports = Backbone.Marionette.CompositeView.extend({
         createBtn: '.create-category-btn'
     },
     events: {
-        'keypress': 'preventSubmit',
-        'keypress @ui.createBtn': 'onKeypressCreate',
+        'keypress @ui.inputName': 'preventSubmit',
         'click @ui.createBtn': 'onClickCreate'
     },
     preventSubmit: function(e) {
         var enter = 13;
         if(e.which === enter) e.preventDefault();
     },
-    onKeypressCreate: function(e) {
-        var enter = 13;
-        if(e.which === enter) this.createCategory();
-    },
     onClickCreate: function() {
-        this.createCategory();
-    },
-    createCategory: function() {
         this.model = new Category();
         this.bindBackboneValidation();
 
@@ -45,8 +37,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
             valid: function(view, attr) {
                 var control = view.$('[name=' + attr + ']');
                 var group = control.closest('.form-group');
-                group.removeClass('has-error');
-                group.find('.help-block').remove();
+                group.removeClass('has-error').find('.help-block').remove();
             },
             invalid: function(view, attr, error) {
                 var control = view.$('[name=' + attr + ']');
@@ -55,8 +46,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
                 if(group.find('.help-block').length == 0) {
                     control.after('<p class=\'help-block\'></p>');
                 }
-                var target = group.find('.help-block');
-                target.text(error);
+                group.find('.help-block').text(error);
             }
         });
     }
