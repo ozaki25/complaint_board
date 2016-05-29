@@ -9,10 +9,10 @@ module.exports = Backbone.Model.extend({
         }
     },
     previous: function() {
-        return this.collection.models[this.currentPosition - 1];
+        return this.collection.models[this.currentPosition() - 1];
     },
     next: function() {
-        return this.collection.models[this.currentPosition + 1];
+        return this.collection.models[this.currentPosition() + 1];
     },
     currentPosition: function() {
         return _(this.collection.models).indexOf(this);
