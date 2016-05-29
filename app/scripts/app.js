@@ -29,7 +29,7 @@ Backbone.Marionette = require('backbone.marionette');
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
-var MainView = require('./views/main/MainView');
+var MainView = require('./views/comments/MainView');
 var CategoryMainView = require('./views/categories/MainView');
 
 var comments = new Comments();
@@ -37,14 +37,15 @@ var categories = new Categories();
 
 var appRouter = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
-        "": "main",
+        "": "comments",
+        "comments": "comments",
         "categories": "categories"
     },
     initialize: function() {
         app.header.show(new HeaderView());
     },
     controller: {
-        main: function() {
+        comments: function() {
             categories.fetch().done(function() {
                 comments.fetch().done(function() {
                     var mainView = new MainView({collection: comments, categoryList: categories});
@@ -74,7 +75,7 @@ var app = new Backbone.Marionette.Application({
 
 app.start();
 
-},{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":7,"./views/categories/MainView":10,"./views/main/MainView":16,"backbone":"backbone","backbone.marionette":18,"bootstrap":21,"jquery":"jquery"}],4:[function(require,module,exports){
+},{"./collections/Categories":1,"./collections/Comments":2,"./views/HeaderView":7,"./views/categories/MainView":10,"./views/comments/MainView":16,"backbone":"backbone","backbone.marionette":18,"bootstrap":21,"jquery":"jquery"}],4:[function(require,module,exports){
 var _ = require('underscore');
 var Backbone = require('backbone');
 

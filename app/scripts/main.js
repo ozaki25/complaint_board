@@ -6,7 +6,7 @@ Backbone.Marionette = require('backbone.marionette');
 var Comments = require('./collections/Comments');
 var Categories = require('./collections/Categories');
 var HeaderView = require('./views/HeaderView');
-var MainView = require('./views/main/MainView');
+var MainView = require('./views/comments/MainView');
 var CategoryMainView = require('./views/categories/MainView');
 
 var comments = new Comments();
@@ -14,14 +14,15 @@ var categories = new Categories();
 
 var appRouter = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
-        "": "main",
+        "": "comments",
+        "comments": "comments",
         "categories": "categories"
     },
     initialize: function() {
         app.header.show(new HeaderView());
     },
     controller: {
-        main: function() {
+        comments: function() {
             categories.fetch().done(function() {
                 comments.fetch().done(function() {
                     var mainView = new MainView({collection: comments, categoryList: categories});
