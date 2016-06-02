@@ -270,15 +270,14 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.categoryPanel.show(categoriesView);
     },
     addCategory: function() {
-        var alertView = new AlertView({type: 'success', message: 'カテゴリを登録しました。'});
-        this.showAlert(alertView);
+        this.showAlert('success', 'カテゴリを登録しました。');
     },
     removeCategory: function() {
-        var alertView = new AlertView({type: 'success', message: 'カテゴリを削除しました。'});
-        this.showAlert(alertView);
+        this.showAlert('success', 'カテゴリを削除しました。');
     },
-    showAlert: function(view) {
-        this.alert.show(view);
+    showAlert: function(type, message) {
+        var alertView = new AlertView({type: type, message: message});
+        this.alert.show(alertView);
     }
 });
 
