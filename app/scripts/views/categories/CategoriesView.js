@@ -44,7 +44,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
                 var group = control.closest('.form-group');
                 group.addClass('has-error');
                 if(group.find('.help-block').length == 0) {
-                    control.after('<p class=\'help-block\'></p>');
+                    control.after('<p class="help-block"></p>');
                 }
                 group.find('.help-block').text(error);
             }
