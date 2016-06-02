@@ -17,11 +17,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         comments: '#comments'
     },
     collectionEvents: {
-        'add': 'addCommentToCurrentView',
-        'remove': 'removeComment'
+        'add': 'addCommentToCurrentView showAddedAlert',
+        'remove': 'showRemovedAlert'
     },
     childEvents: {
-        'click:category': 'showSelectCategory',
+        'click:category': 'showSelectedCategory',
         'click:previous': 'showPreviousCategory',
         'click:next': 'showNextCategory'
     },
@@ -39,12 +39,14 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
         if(currentView.category.isAdded(comment)) currentView.collection.add(comment);
+    },
+    showAddedAlert: function() {
         this.showAlert('success', 'コメントを登録しました。');
     },
-    removeComment: function() {
+    showRemovedAlert: function() {
         this.showAlert('success', 'コメントを削除しました。');
     },
-    showSelectCategory: function(categoryView) {
+    showSelectedCategory: function(categoryView) {
         this.showComments(categoryView.model);
     },
     showPreviousCategory: function(commentView) {

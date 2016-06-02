@@ -12,17 +12,17 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         categoryPanel: '#category_panel'
     },
     collectionEvents: {
-        'add': 'addCategory',
-        'remove': 'removeCategory'
+        'add': 'showAddedAlert',
+        'remove': 'showRemovedAlert'
     },
     onRender: function() {
         var categoriesView = new CategoriesView({collection: this.collection});
         this.categoryPanel.show(categoriesView);
     },
-    addCategory: function() {
+    showAddedAlert: function() {
         this.showAlert('success', 'カテゴリを登録しました。');
     },
-    removeCategory: function() {
+    showRemoveAlert: function() {
         this.showAlert('success', 'カテゴリを削除しました。');
     },
     showAlert: function(type, message) {
