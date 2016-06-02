@@ -17,5 +17,8 @@ module.exports = Backbone.Model.extend({
             delete response.category;
         }
         return response;
+    },
+    belongTo: function(category) {
+        return this.get('categoryId') === category.id;
     }
 });

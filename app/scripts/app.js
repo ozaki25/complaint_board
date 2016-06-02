@@ -87,12 +87,12 @@ module.exports = Backbone.Model.extend({
         }
     },
     previous: function() {
-        return this.collection.models[this.currentPosition() - 1];
+        return this.collection.models[this.position() - 1];
     },
     next: function() {
-        return this.collection.models[this.currentPosition() + 1];
+        return this.collection.models[this.position() + 1];
     },
-    currentPosition: function() {
+    position: function() {
         return _(this.collection.models).indexOf(this);
     },
     isFirst: function() {
@@ -100,9 +100,6 @@ module.exports = Backbone.Model.extend({
     },
     isLast: function() {
         return this.id === _(this.collection.models).last().id;
-    },
-    isAdded: function(comment) {
-        return this.id === comment.get('categoryId');
     }
 });
 
@@ -126,6 +123,9 @@ module.exports = Backbone.Model.extend({
             delete response.category;
         }
         return response;
+    },
+    belongTo: function(category) {
+        return this.get('categoryId') === category.id;
     }
 });
 
@@ -474,7 +474,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        if(currentView.category.isAdded(comment)) currentView.collection.add(comment);
+        if(comment.belongTo(currentView.category)) currentView.collection.add(comment);
     },
     showAddedAlert: function() {
         this.showAlert('success', 'コメントを登録しました。');

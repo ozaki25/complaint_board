@@ -38,7 +38,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
     addCommentToCurrentView: function(comment) {
         var currentView = this.comments.currentView;
-        if(currentView.category.isAdded(comment)) currentView.collection.add(comment);
+        if(comment.belongTo(currentView.category)) currentView.collection.add(comment);
     },
     showAddedAlert: function() {
         this.showAlert('success', 'コメントを登録しました。');
